@@ -3,5 +3,8 @@
   "name": "cortex",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry"
+  "main": "src/server.ts",
+  "ai": { "binding": "AI" },
+  "triggers": { "crons": ["0 * * * *"] },
+  "observability": { "enabled": true },
 }
