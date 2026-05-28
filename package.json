@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "deploy": "npm run build && wrangler deploy",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "db-push": "drizzle-kit push"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.26.0",
@@ -20,12 +21,15 @@
     "@tanstack/react-router-ssr-query": "latest",
     "@tanstack/react-start": "latest",
     "@tanstack/router-plugin": "^1.132.0",
+    "cloudflare": "^6.3.0",
+    "drizzle-orm": "^0.45.2",
     "lucide-react": "^0.545.0",
     "react": "^19.2.0",
     "react-aria": "^3.48.0",
     "react-aria-components": "^1.17.0",
     "react-dom": "^19.2.0",
     "recharts": "^3.8.1",
+    "rss-parser": "^3.13.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -37,6 +41,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
+    "drizzle-kit": "^0.31.10",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwind-merge": "^3.6.0",
