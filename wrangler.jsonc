@@ -16,4 +16,8 @@
       "migrations_dir": "drizzle/migrations",
     },
   ],
+  "queues": {
+    "producers": [{ "queue": "cortex-queue-crawler", "binding": "QUEUE" }],
+    "consumers": [{ "queue": "cortex-queue-crawler" }],
+  },
 }
