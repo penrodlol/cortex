@@ -3,8 +3,17 @@
   "name": "cortex",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "src/server.ts",
+  "main": "src/server/index.ts",
   "ai": { "binding": "AI" },
   "triggers": { "crons": ["0 * * * *"] },
   "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cortex",
+      "database_id": "3b0a55e4-6452-46b8-b3a8-53805bbdb082",
+      "remote": true,
+      "migrations_dir": "drizzle/migrations",
+    },
+  ],
 }
