@@ -5,7 +5,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/server/index.ts",
   "ai": { "binding": "AI" },
-  "triggers": { "crons": ["* * * * *"] },
+  "triggers": { "crons": ["0 5 * * *"] },
   "observability": { "enabled": true },
   "d1_databases": [
     {
