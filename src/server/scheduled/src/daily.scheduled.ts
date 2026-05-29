@@ -1,6 +1,6 @@
 // export type DailyScheduledBody = Site & { items: Array<Pick<Parser.Item, 'title' | 'link' | 'pubDate'>> };
 
-import db from '@/db';
+import db, { site } from '@/db';
 
 export const DAILY_SCHEDULED_NO_SITES_ERROR = 'No Sites Found In Database';
 export const DAILY_SCHEDULED_PARSING_ERROR = 'Error Parsing RSS Feed';
