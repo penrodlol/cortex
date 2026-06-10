@@ -1,3 +1,4 @@
+import { logError } from '../utils/logger';
 import dailyScheduled from './src/daily.scheduled';
 
 export const SCHEDULED_HANDLER_ERROR = 'Error Processing Scheduled';
@@ -12,7 +13,7 @@ const scheduled: ExportedHandler<Env>['scheduled'] = async (event, env) => {
         throw new Error(`${SCHEDULED_HANDLER_NO_HANDLER}: ${event.cron}`);
     }
   } catch (error) {
-    console.error({ message: SCHEDULED_HANDLER_ERROR, data: { error, event } });
+    logError(SCHEDULED_HANDLER_ERROR, { error, event });
   }
 };
 

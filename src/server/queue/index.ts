@@ -1,4 +1,5 @@
-import type { DailyScheduledBody } from '@/server/scheduled/src/daily.scheduled';
+import type { DailyScheduledBody } from '../scheduled/src/daily.scheduled';
+import { logError } from '../utils/logger';
 import dailyQueue from './src/daily.queue';
 
 export type QueueEventType = 'daily';
@@ -19,7 +20,7 @@ const queue: ExportedHandler<Env, ReturnType<typeof createQueueEventBody>>['queu
       }),
     );
   } catch (error) {
-    console.error({ message: QUEUE_HANDLER_ERROR, data: { error, batch } });
+    logError(QUEUE_HANDLER_ERROR, { error, batch });
   }
 };
 

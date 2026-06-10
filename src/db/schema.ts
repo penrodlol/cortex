@@ -31,7 +31,8 @@ export const post = sqliteTable('post', {
   title: text().notNull(),
   url: text().unique().notNull(),
   summary: text().notNull(),
-  topic: text().notNull(),
+  topic: text(),
+  pubDate: text('pub_date').notNull(),
   createdAt: text('created_at')
     .notNull()
     .default(sql`(current_timestamp)`),
