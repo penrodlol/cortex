@@ -20,7 +20,7 @@ export const site = sqliteTable('site', {
   id: primaryKey,
   name: text().unique().notNull(),
   url: text().unique().notNull(),
-  rssEndpoint: text('rss_endpoint').notNull(),
+  rssUrl: text('rss_url').notNull(),
   createdAt: text('created_at')
     .notNull()
     .default(sql`(current_timestamp)`),

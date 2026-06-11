@@ -24,7 +24,7 @@ const dailyScheduled = async (env: Env) => {
   const successful: Array<DailyScheduledBody> = [];
   const failed: Array<Site & { error: unknown }> = [];
 
-  (await Promise.allSettled(sites.map((site) => parser.parseURL(`${site.url}/${site.rssEndpoint}`)))).forEach((result, index) => {
+  (await Promise.allSettled(sites.map((site) => parser.parseURL(site.rssUrl)))).forEach((result, index) => {
     const site = sites[index];
     if (result.status !== 'fulfilled') return failed.push({ ...site, error: result.reason });
 
