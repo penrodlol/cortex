@@ -12,7 +12,8 @@
     "test": "vitest run",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types",
-    "db-push": "drizzle-kit push"
+    "db-generate": "drizzle-kit generate",
+    "db-migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.26.0",

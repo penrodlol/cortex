@@ -80,7 +80,7 @@ const dailyQueue = async (env: Env, body: DailyScheduledBody) => {
         siteId: body.id,
         title: item.title,
         url: item.link,
-        pubDate: new Date(item.pubDate).toISOString(),
+        pubDate: new Date(item.pubDate).getTime(),
         summary: aiRunResponseJson.data.summary,
         topic: aiRunResponseJson.data.topic,
       });

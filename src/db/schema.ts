@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import { SQLiteColumnBuilder, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, SQLiteColumnBuilder, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export type Site = typeof site.$inferSelect;
 export type Sites = Array<Site>;
@@ -21,9 +21,9 @@ export const site = sqliteTable('site', {
   name: text().unique().notNull(),
   url: text().unique().notNull(),
   rssUrl: text('rss_url').notNull(),
-  createdAt: text('created_at')
+  createdAt: integer('created_at')
     .notNull()
-    .default(sql`(current_timestamp)`),
+    .default(sql`(unixepoch())`),
 });
 
 export const post = sqliteTable('post', {
@@ -32,10 +32,10 @@ export const post = sqliteTable('post', {
   url: text().unique().notNull(),
   summary: text().notNull(),
   topic: text(),
-  pubDate: text('pub_date').notNull(),
-  createdAt: text('created_at')
+  pubDate: integer('pub_date').notNull(),
+  createdAt: integer('created_at')
     .notNull()
-    .default(sql`(current_timestamp)`),
+    .default(sql`(unixepoch())`),
   siteId: foreignKey('site_id', () => site.id, { onDelete: 'cascade' }).notNull(),
 });
 
