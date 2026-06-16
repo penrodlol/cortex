@@ -45,4 +45,4 @@ export const post = sqliteTable('post', {
 
 export const siteRelations = relations(site, ({ many }) => ({ posts: many(post) }));
 
-export const postRelations = relations(post, ({ one }) => ({ site: one(site) }));
+export const postRelations = relations(post, ({ one }) => ({ site: one(site, { fields: [post.siteId], references: [site.id] }) }));

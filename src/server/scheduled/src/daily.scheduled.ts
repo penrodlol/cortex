@@ -1,4 +1,5 @@
-import db, { site, type Site } from '@/db';
+import db, { post, type Site } from '@/db';
+import { gte } from 'drizzle-orm';
 import Parser from 'rss-parser';
 import { z } from 'zod';
 import { createQueueEventBody } from '../../queue';
@@ -11,14 +12,19 @@ export const DAILY_SCHEDULED_PUBLISHED_DAYS_LIMIT_ERROR = 'Invalid Published Day
 export const DAILY_SCHEDULED_PARSING_ERROR = 'Error Parsing RSS Feed';
 
 const dailyScheduled = async (env: Env) => {
-  const sites = await db.select().from(site);
-  if (!sites.length) throw new Error(DAILY_SCHEDULED_NO_SITES_ERROR);
-
-  const daysLimit = z.coerce.number().int().positive().safeParse(env.CLOUDFLARE_DAILY_SCHEDULED_PUBLISHED_DAYS_LIMIT);
+  const daysLimit = z.coerce
+    .number()
+    .int()
+    .positive()
+    .transform((value) => Math.floor(Date.now() / 1000) - value * 24 * 60 * 60)
+    .safeParse(env.CLOUDFLARE_DAILY_SCHEDULED_PUBLISHED_DAYS_LIMIT);
   if (!daysLimit.success) {
     logError(DAILY_SCHEDULED_PUBLISHED_DAYS_LIMIT_ERROR, z.prettifyError(daysLimit.error));
     return;
   }
+
+  const sites = await db.query.site.findMany({ with: { posts: { where: gte(post.pubDate, daysLimit.data) } } });
+  if (!sites.length) throw new Error(DAILY_SCHEDULED_NO_SITES_ERROR);
 
   const parser = new Parser();
   const successful: Array<DailyScheduledBody> = [];
@@ -30,7 +36,8 @@ const dailyScheduled = async (env: Env) => {
 
     const items = result.value.items
       .map((item) => ({ title: item.title, link: item.link, pubDate: item.pubDate }))
-      .filter((item) => new Date(String(item.pubDate)) > new Date(Date.now() - daysLimit.data * 24 * 60 * 60 * 1000));
+      .filter((item) => item.pubDate && new Date(item.pubDate).getTime() / 1000 >= daysLimit.data)
+      .filter((item) => !site.posts.some((post) => post.url === item.link));
 
     if (items.length) successful.push({ ...site, items });
   });
