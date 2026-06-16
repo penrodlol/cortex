@@ -49,27 +49,45 @@ const dailyQueue = async (env: Env, body: DailyScheduledBody) => {
         continue;
       }
 
-      const prompt =
-        'Summarize the content below and respond with valid JSON only.\n' +
-        'Use this exact shape:\n' +
-        '{"summary":"string","topic":"string"}\n' +
-        'Rules:\n' +
-        '- summary must be 1 paragraph.\n' +
-        '- summary must read like it was written by a human.\n' +
-        '- summary must begin immediately with the core thesis or the most critical fact.\n' +
-        '- summary must not include generic filler phrases (for example, "This article, this guide...").\n' +
-        '- topic must be the single most referenced technical library in the content.\n' +
-        '- topic must not include version numbers or version qualifiers (for example, use "React" instead of "React 19").\n' +
-        '- topic must be null if there is no technical library mentioned in the content.\n' +
-        '- Do not include markdown, code fences, or any text outside JSON.\n\n' +
-        'Content:\n' +
-        scrapeContentFormatted;
+      const prompt = `
+  Summarize the content and identify its primary technical topic.
+  
+  Summary requirements:
+  - Write exactly one paragraph.
+  - Begin immediately with the central claim, finding, announcement, or technical takeaway.
+  - Write naturally, as if written by an experienced engineer.
+  - Avoid generic introductions such as "This article", "This blog post", or "This guide".
+  - Focus on the most important information and omit minor details.
+  
+  Topic requirements:
+  - Identify the single primary technical subject discussed in the content.
+  - Prefer the most specific technology, framework, platform, protocol, library, language, tool, architecture pattern, or engineering concept that best represents the content.
+  - If multiple technologies are mentioned, choose the one the content is primarily about.
+  - Remove version numbers and version qualifiers.
+  - Prefer specific technologies over broader categories.
+  - Return null if no clear technical topic exists.
+  
+  Topic classification priority:
+  1. Specific library, framework, SDK, or tool
+  2. Specific cloud service or platform
+  3. Programming language
+  4. Protocol, specification, or standard
+  5. Architecture pattern or engineering concept
+  6. General technical domain
+  
+  Choose the highest-priority category that accurately represents the content.
+  
+  Content:
+  ${scrapeContentFormatted}
+  `;
 
-      const aiRunResponse = await env.AI.run(env.CLOUDFLARE_AI_MODEL, { messages: [{ role: 'user', content: prompt }] });
+      const aiResponseSchema = z.object({ summary: z.string(), topic: z.string().nullable() });
+      const aiRunResponse = await env.AI.run(env.CLOUDFLARE_AI_MODEL, {
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_schema', json_schema: { ...z.toJSONSchema(aiResponseSchema), name: 'daily_queue_ai_response' } },
+      });
       const aiRunResponseText = (aiRunResponse as ChatCompletionsOutput)?.choices?.[0]?.message?.content;
-      const aiRunResponseJson = z
-        .object({ summary: z.string(), topic: z.string().nullable() })
-        .safeParse(JSON.parse(aiRunResponseText ?? '{}'));
+      const aiRunResponseJson = aiResponseSchema.safeParse(JSON.parse(aiRunResponseText ?? '{}'));
       if (!aiRunResponseJson?.success) {
         logError(DAILY_QUEUE_AI_RESPONSE_ERROR, { aiRunResponseText, error: z.prettifyError(aiRunResponseJson.error), item });
         failed.push(item);
