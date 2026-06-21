@@ -1,4 +1,4 @@
-import db, { post, type Post } from '@/db';
+import db, { article, type Article } from '@/db';
 import { z } from 'zod';
 import type { DailyScheduledBody } from '../../scheduled/src/daily.scheduled';
 import { logError } from '../../utils/logger';
@@ -9,7 +9,7 @@ export const DAILY_QUEUE_NO_CONTENT_ERROR = 'No Scraped Content';
 export const DAILY_QUEUE_AI_RESPONSE_ERROR = 'AI Response Failed';
 
 const dailyQueue = async (env: Env, body: DailyScheduledBody) => {
-  const success: Array<Omit<Post, 'id' | 'createdAt'>> = [];
+  const success: Array<Omit<Article, 'id' | 'createdAt'>> = [];
   const retryLimit = z.coerce.number().int().nonnegative().safeParse(env.CLOUDFLARE_DAILY_QUEUE_RETRY_LIMIT);
   if (!retryLimit.success) {
     logError(DAILY_QUEUE_INVALID_RETRY_LIMIT_ERROR, z.prettifyError(retryLimit.error));
@@ -50,7 +50,7 @@ const dailyQueue = async (env: Env, body: DailyScheduledBody) => {
       }
 
       const prompt = `
-  Summarize the content and identify its primary technical topic.
+  Summarize the content.
   
   Summary requirements:
   - Write exactly one paragraph.
@@ -59,29 +59,11 @@ const dailyQueue = async (env: Env, body: DailyScheduledBody) => {
   - Avoid generic introductions such as "This article", "This blog post", or "This guide".
   - Focus on the most important information and omit minor details.
   
-  Topic requirements:
-  - Identify the single primary technical subject discussed in the content.
-  - Prefer the most specific technology, framework, platform, protocol, library, language, tool, architecture pattern, or engineering concept that best represents the content.
-  - If multiple technologies are mentioned, choose the one the content is primarily about.
-  - Remove version numbers and version qualifiers.
-  - Prefer specific technologies over broader categories.
-  - Return null if no clear technical topic exists.
-  
-  Topic classification priority:
-  1. Specific library, framework, SDK, or tool
-  2. Specific cloud service or platform
-  3. Programming language
-  4. Protocol, specification, or standard
-  5. Architecture pattern or engineering concept
-  6. General technical domain
-  
-  Choose the highest-priority category that accurately represents the content.
-  
   Content:
   ${scrapeContentFormatted}
   `;
 
-      const aiResponseSchema = z.object({ summary: z.string(), topic: z.string().nullable() });
+      const aiResponseSchema = z.object({ summary: z.string() });
       const aiRunResponse = await env.AI.run(env.CLOUDFLARE_AI_MODEL, {
         messages: [{ role: 'user', content: prompt }],
         response_format: { type: 'json_schema', json_schema: { ...z.toJSONSchema(aiResponseSchema), name: 'daily_queue_ai_response' } },
@@ -95,12 +77,11 @@ const dailyQueue = async (env: Env, body: DailyScheduledBody) => {
       }
 
       success.push({
-        siteId: body.id,
+        articlePublisherId: body.id,
         title: item.title,
         url: item.link,
-        pubDate: new Date(item.pubDate).getTime(),
+        pubDate: Math.floor(new Date(item.pubDate).getTime() / 1000),
         summary: aiRunResponseJson.data.summary,
-        topic: aiRunResponseJson.data.topic,
       });
     }
 
@@ -108,7 +89,7 @@ const dailyQueue = async (env: Env, body: DailyScheduledBody) => {
     retry++;
   }
 
-  if (success.length) await db.insert(post).values(success).onConflictDoNothing();
+  if (success.length) await db.insert(article).values(success).onConflictDoNothing();
 };
 
 export default dailyQueue;

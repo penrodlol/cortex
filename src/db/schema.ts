@@ -1,48 +1,75 @@
 import { relations, sql } from 'drizzle-orm';
 import { integer, SQLiteColumnBuilder, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-export type Site = typeof site.$inferSelect;
-export type Sites = Array<Site>;
-export type Post = typeof post.$inferSelect;
-export type Posts = Array<Post>;
+export type ArticlePublisher = typeof articlePublisher.$inferSelect;
+export type ArticlePublishers = Array<ArticlePublisher>;
+export type Article = typeof article.$inferSelect;
+export type Articles = Array<Article>;
+export type YoutubeChannel = typeof youtubeChannel.$inferSelect;
+export type YoutubeChannels = Array<YoutubeChannel>;
+export type YoutubeVideo = typeof youtubeVideo.$inferSelect;
+export type YoutubeVideos = Array<YoutubeVideo>;
 
 const primaryKey = text()
   .primaryKey()
   .notNull()
   .$defaultFn(() => crypto.randomUUID());
 const foreignKey = (columnName: string, ...props: Parameters<SQLiteColumnBuilder['references']>) => text(columnName).references(...props);
+const createdAt = integer('created_at')
+  .notNull()
+  .default(sql`(unixepoch())`);
 
 // ==================================================================
 //                              TABLES
 // ==================================================================
 
-export const site = sqliteTable('site', {
+export const articlePublisher = sqliteTable('article_publisher', {
   id: primaryKey,
   name: text().unique().notNull(),
   url: text().unique().notNull(),
   rssUrl: text('rss_url').notNull(),
-  createdAt: integer('created_at')
-    .notNull()
-    .default(sql`(unixepoch())`),
+  createdAt,
 });
 
-export const post = sqliteTable('post', {
+export const article = sqliteTable('article', {
   id: primaryKey,
   title: text().notNull(),
   url: text().unique().notNull(),
   summary: text().notNull(),
-  topic: text(),
   pubDate: integer('pub_date').notNull(),
-  createdAt: integer('created_at')
-    .notNull()
-    .default(sql`(unixepoch())`),
-  siteId: foreignKey('site_id', () => site.id, { onDelete: 'cascade' }).notNull(),
+  createdAt,
+  articlePublisherId: foreignKey('article_publisher_id', () => articlePublisher.id, { onDelete: 'cascade' }).notNull(),
+});
+
+export const youtubeChannel = sqliteTable('youtube_channel', {
+  id: primaryKey,
+  handle: text().unique().notNull(),
+  name: text().unique().notNull(),
+  createdAt,
+});
+
+export const youtubeVideo = sqliteTable('youtube_video', {
+  id: primaryKey,
+  title: text().notNull(),
+  url: text().unique().notNull(),
+  summary: text().notNull(),
+  pubDate: integer('pub_date').notNull(),
+  createdAt,
+  youtubeChannelId: foreignKey('youtube_channel_id', () => youtubeChannel.id, { onDelete: 'cascade' }).notNull(),
 });
 
 // ==================================================================
 //                            RELATIONS
 // ==================================================================
 
-export const siteRelations = relations(site, ({ many }) => ({ posts: many(post) }));
+export const articlePublisherRelations = relations(articlePublisher, ({ many }) => ({ articles: many(article) }));
 
-export const postRelations = relations(post, ({ one }) => ({ site: one(site, { fields: [post.siteId], references: [site.id] }) }));
+export const articleRelations = relations(article, ({ one }) => ({
+  articlePublisher: one(articlePublisher, { fields: [article.articlePublisherId], references: [articlePublisher.id] }),
+}));
+
+export const youtubeChannelRelations = relations(youtubeChannel, ({ many }) => ({ videos: many(youtubeVideo) }));
+
+export const youtubeVideoRelations = relations(youtubeVideo, ({ one }) => ({
+  youtubeChannel: one(youtubeChannel, { fields: [youtubeVideo.youtubeChannelId], references: [youtubeChannel.id] }),
+}));
