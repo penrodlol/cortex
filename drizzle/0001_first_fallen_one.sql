@@ -1,0 +1,1 @@
+ALTER TABLE `youtube_video` ADD `thumbnail_url` text NOT NULL;

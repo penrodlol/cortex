@@ -52,6 +52,7 @@ export const youtubeVideo = sqliteTable('youtube_video', {
   id: primaryKey,
   title: text().notNull(),
   url: text().unique().notNull(),
+  thumbnailUrl: text('thumbnail_url').notNull(),
   summary: text().notNull(),
   pubDate: integer('pub_date').notNull(),
   createdAt,

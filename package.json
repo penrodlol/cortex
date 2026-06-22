@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.26.0",
+    "@googleapis/youtube": "^33.0.0",
+    "@supadata/js": "^1.4.0",
     "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
     "@tanstack/react-router-ssr-query": "latest",
