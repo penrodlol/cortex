@@ -1,6 +1,7 @@
-import db, { youtubeChannel, type YoutubeChannel } from '@/db';
+import db, { youtubeVideo, type YoutubeChannel } from '@/db';
 import youtube from '@/libs/youtube';
 import type { youtube_v3 } from '@googleapis/youtube';
+import { gte } from 'drizzle-orm';
 import { createQueueEventBody } from '../../queue';
 import { logError } from '../../utils/logger';
 
@@ -12,7 +13,7 @@ export const DAILY_YOUTUBE_SCHEDULED_NO_VIDEO_ID_FOUND = 'No YouTube Video ID Fo
 export const DAILY_YOUTUBE_SCHEDULED_ERROR = 'Error Occurred While Processing YouTube Channels';
 
 const dailyYoutubeScheduled = async (env: Env, daysAgo: number) => {
-  const youtubeChannels = await db.select().from(youtubeChannel);
+  const youtubeChannels = await db.query.youtubeChannel.findMany({ with: { videos: { where: gte(youtubeVideo.pubDate, daysAgo) } } });
   if (!youtubeChannels.length) throw new Error(DAILY_YOUTUBE_SCHEDULED_NO_CHANNELS_FOUND);
 
   const successful: Array<DailyYoutubeScheduledBody> = [];
@@ -47,7 +48,8 @@ const dailyYoutubeScheduled = async (env: Env, daysAgo: number) => {
 
       const youtubeVideoId = youtubeVideo.id.videoId;
       const isYoutubeVideoShort = await fetch(`https://www.youtube.com/shorts/${youtubeVideoId}`, { method: 'HEAD', redirect: 'manual' });
-      if (isYoutubeVideoShort.status !== 200) youtubeVideos.push(youtubeVideo);
+      if (isYoutubeVideoShort.status !== 200 && !youtubeChannel.videos.some((video) => video.videoId === youtubeVideoId))
+        youtubeVideos.push(youtubeVideo);
     }
 
     if (youtubeVideos.length) successful.push({ ...youtubeChannel, items: youtubeVideos });
