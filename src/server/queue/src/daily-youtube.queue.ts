@@ -33,8 +33,8 @@ const handler = async (env: Env, body: DailyYoutubeScheduledBody, retryLimit: nu
     if (!youtubeTranscriptSummary) continue;
 
     success.push({
+      videoId: item.id.videoId,
       title: item.snippet.title,
-      url: youtubeUrl,
       thumbnailUrl: item.snippet.thumbnails.high.url,
       summary: youtubeTranscriptSummary,
       pubDate: Math.floor(new Date(item.snippet.publishedAt).getTime() / 1000),
