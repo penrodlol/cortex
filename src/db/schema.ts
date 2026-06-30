@@ -9,6 +9,8 @@ export type YoutubeChannel = typeof youtubeChannel.$inferSelect;
 export type YoutubeChannels = Array<YoutubeChannel>;
 export type YoutubeVideo = typeof youtubeVideo.$inferSelect;
 export type YoutubeVideos = Array<YoutubeVideo>;
+export type Summary = typeof summary.$inferSelect;
+export type Summaries = Array<Summary>;
 
 const primaryKey = text()
   .primaryKey()
@@ -57,6 +59,23 @@ export const youtubeVideo = sqliteTable('youtube_video', {
   pubDate: integer('pub_date').notNull(),
   createdAt,
   youtubeChannelId: foreignKey('youtube_channel_id', () => youtubeChannel.id, { onDelete: 'cascade' }).notNull(),
+});
+
+export const summary = sqliteTable('summary', {
+  id: primaryKey,
+  name: text({
+    enum: [
+      'total_article_publishers',
+      'total_articles',
+      'total_youtube_channels',
+      'total_youtube_videos',
+      'total_articles_and_youtube_videos',
+    ],
+  })
+    .unique()
+    .notNull(),
+  value: integer().notNull(),
+  createdAt,
 });
 
 // ==================================================================
