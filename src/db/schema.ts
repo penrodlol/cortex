@@ -30,6 +30,7 @@ export const articlePublisher = sqliteTable('article_publisher', {
   name: text().unique().notNull(),
   url: text().unique().notNull(),
   rssUrl: text('rss_url').notNull(),
+  logoUrl: text('logo_url').notNull(),
   createdAt,
 });
 
@@ -47,6 +48,7 @@ export const youtubeChannel = sqliteTable('youtube_channel', {
   id: primaryKey,
   handle: text().unique().notNull(),
   name: text().unique().notNull(),
+  logoUrl: text('logo_url').notNull(),
   createdAt,
 });
 
