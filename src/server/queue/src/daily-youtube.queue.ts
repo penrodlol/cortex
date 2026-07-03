@@ -37,7 +37,7 @@ const handler = async (env: Env, body: DailyYoutubeScheduledBody, retryLimit: nu
       title: item.snippet.title,
       thumbnailUrl: item.snippet.thumbnails.high.url,
       summary: youtubeTranscriptSummary,
-      pubDate: Math.floor(new Date(item.snippet.publishedAt).getTime() / 1000),
+      pubDate: new Date(item.snippet.publishedAt).getTime(),
       youtubeChannelId: body.id,
     });
   }

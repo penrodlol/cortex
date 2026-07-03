@@ -19,7 +19,7 @@ const primaryKey = text()
 const foreignKey = (columnName: string, ...props: Parameters<SQLiteColumnBuilder['references']>) => text(columnName).references(...props);
 const createdAt = integer('created_at')
   .notNull()
-  .default(sql`(unixepoch())`);
+  .default(sql`(unixepoch('subsec') * 1000)`);
 
 // ==================================================================
 //                              TABLES

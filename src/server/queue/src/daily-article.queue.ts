@@ -21,7 +21,7 @@ const handler = async (env: Env, body: DailyArticleScheduledBody, retryLimit: nu
       articlePublisherId: body.id,
       title: item.title,
       url: item.link,
-      pubDate: Math.floor(new Date(item.pubDate).getTime() / 1000),
+      pubDate: new Date(item.pubDate).getTime(),
       summary: articleContentSummary,
     });
   }

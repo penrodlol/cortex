@@ -57,6 +57,13 @@
       "when": 1782947608560,
       "tag": "0007_restore_summary_triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1783106008569,
+      "tag": "0008_curious_satana",
+      "breakpoints": true
     }
   ]
 }
