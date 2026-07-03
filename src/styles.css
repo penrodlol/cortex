@@ -3,14 +3,14 @@
 @plugin 'tailwindcss-react-aria-components';
 @import '@fontsource-variable/geist';
 @import '@fontsource-variable/geist-mono';
-@import '@fontsource-variable/newsreader';
+@import '@fontsource-variable/fraunces';
 
 @theme inline {
   --font-sans: 'Geist Variable', sans-serif;
-  --font-serif: 'Newsreader Variable', serif;
+  --font-serif: 'Fraunces Variable', serif;
   --font-mono: 'Geist Mono Variable', monospace;
 
-  --radius: var(--radius-2xl);
+  --color-app-background: var(--background);
 
   --color-gray-1: var(--gray-1);
   --color-gray-2: var(--gray-2);
@@ -70,6 +70,8 @@
 }
 
 html {
+  --background: oklch(0.94 0 0);
+
   --gray-1: oklch(0.95 0 0);
   --gray-2: oklch(0.935 0 0);
   --gray-3: oklch(0.907 0 0);
@@ -128,6 +130,8 @@ html {
 }
 
 html.dark {
+  --background: oklch(0.2 0 0);
+
   --gray-1: oklch(0.146 0 0);
   --gray-2: oklch(0.21 0 0);
   --gray-3: oklch(0.252 0 0);

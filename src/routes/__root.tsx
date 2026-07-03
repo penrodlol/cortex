@@ -16,10 +16,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-gray-1 text-gray-12 flex min-h-svh flex-col">
-        <header></header>
+      <body className="bg-app-background text-gray-12 flex min-h-svh flex-col">
         <main className="flex-1">{children}</main>
-        <footer></footer>
         <Scripts />
       </body>
     </html>
