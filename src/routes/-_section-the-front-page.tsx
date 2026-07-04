@@ -1,5 +1,6 @@
 import { Avatar } from '@/components/avatar';
 import * as Card from '@/components/card';
+import * as Collapsible from '@/components/collapsible';
 import Link from '@/components/link';
 import { Separator } from '@/components/separator';
 import { DateTime, Text } from '@/components/typography';
@@ -60,14 +61,17 @@ export default function SectionTheFrontPage({ latestEntry, entries }: SectionThe
                 </Text>
                 <DateTime value={entry.pubDate} font="serif" variant="gray-soft" size="1" />
               </Card.Header>
-              <Card.Content className="gap-4">
-                <Text font="serif" format="balance" size="6">
-                  {entry.title}
-                </Text>
-                <Text format="balance" variant="gray-soft" size="2" className="line-clamp-3 leading-6">
-                  {entry.summary}
-                </Text>
-              </Card.Content>
+              <Collapsible.Root as={Card.Content}>
+                <Collapsible.Trigger overlay variant="gray-ghost" aria-label="Toggle summary" />
+                <Collapsible.Content faded className="flex flex-col gap-4 data-collapsed:h-38">
+                  <Text font="serif" format="balance" size="6">
+                    {entry.title}
+                  </Text>
+                  <Text format="balance" variant="gray-soft" size="2" className="leading-6">
+                    {entry.summary}
+                  </Text>
+                </Collapsible.Content>
+              </Collapsible.Root>
               <Card.Footer>
                 <Link font="serif" variant="gray-soft" size="2" href={entry.sourceUrl}>
                   <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.source.slice(0, 1)} />
