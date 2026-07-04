@@ -15,7 +15,7 @@ export const avatarVariants = tv({
   },
   defaultVariants: { variant: 'gray-ghost', size: '2' },
   variants: {
-    loaded: { false: { img: 'not-noscript:opacity-0' } },
+    loaded: { true: { alt: 'not-noscript:opacity-0' }, false: { img: 'not-noscript:opacity-0' } },
     size: {
       '1': { base: 'size-5', alt: 'text-sm' },
       '2': { base: 'size-7', alt: 'text-base' },
