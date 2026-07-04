@@ -35,6 +35,7 @@ export const getFeed = createServerFn({ method: 'POST' })
           thumbnailUrl: sql`null`.mapWith(String).as('thumbnail_url'),
           source: articlePublisher.name,
           sourceUrl: sql`${articlePublisher.url}`.mapWith(String).as('source_url'),
+          sourceLogoUrl: sql`${articlePublisher.logoUrl}`.mapWith(String).as('source_logo_url'),
         })
         .from(article)
         .innerJoin(articlePublisher, eq(article.articlePublisherId, articlePublisher.id));
@@ -48,6 +49,7 @@ export const getFeed = createServerFn({ method: 'POST' })
           thumbnailUrl: youtubeVideo.thumbnailUrl,
           source: youtubeChannel.name,
           sourceUrl: sql`'https://www.youtube.com/@' || ${youtubeChannel.handle}`.mapWith(String).as('source_url'),
+          sourceLogoUrl: youtubeChannel.logoUrl,
         })
         .from(youtubeVideo)
         .innerJoin(youtubeChannel, eq(youtubeVideo.youtubeChannelId, youtubeChannel.id));

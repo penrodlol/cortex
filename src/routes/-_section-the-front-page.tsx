@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/avatar';
 import * as Card from '@/components/card';
 import { Separator } from '@/components/separator';
 import { DateTime, Text } from '@/components/typography';
@@ -9,7 +10,7 @@ export type SectionTheFrontPageProps = { latestEntry: GetFeedResponse['entries']
 export default function SectionTheFrontPage({ latestEntry, entries }: SectionTheFrontPageProps) {
   return (
     <section className="flex flex-col gap-8">
-      <div className="border-gray-6 flex items-center justify-center border-y-3 border-double py-4">
+      <div className="border-gray-6 flex items-center justify-center border-y-4 border-double py-4">
         <Text as="h2" font="serif" size="1">
           THE FRONT PAGE
         </Text>
@@ -34,6 +35,7 @@ export default function SectionTheFrontPage({ latestEntry, entries }: SectionThe
             </Text>
           </Card.Content>
           <Card.Footer>
+            <Avatar size="1" src={latestEntry.sourceLogoUrl} alt={latestEntry.source.slice(0, 1)} />
             <Text font="serif" variant="gray-soft">
               {latestEntry.source}
             </Text>
@@ -62,6 +64,7 @@ export default function SectionTheFrontPage({ latestEntry, entries }: SectionThe
                 </Text>
               </Card.Content>
               <Card.Footer>
+                <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.source.slice(0, 1)} />
                 <Text font="serif" variant="gray-soft" size="2">
                   {entry.source}
                 </Text>
