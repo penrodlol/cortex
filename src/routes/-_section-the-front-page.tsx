@@ -1,5 +1,6 @@
 import { Avatar } from '@/components/avatar';
 import * as Card from '@/components/card';
+import Link from '@/components/link';
 import { Separator } from '@/components/separator';
 import { DateTime, Text } from '@/components/typography';
 import type { GetFeedResponse } from '@/server/function/feed';
@@ -15,7 +16,7 @@ export default function SectionTheFrontPage({ latestEntry, entries }: SectionThe
           THE FRONT PAGE
         </Text>
       </div>
-      <div className="grid gap-x-8 gap-y-4 not-lg:mx-auto not-lg:max-w-prose lg:grid-cols-[60%_1fr_auto] lg:grid-rows-[repeat(3,auto)]">
+      <div className="grid gap-x-8 gap-y-8 not-lg:mx-auto not-lg:max-w-prose lg:grid-cols-[60%_1fr_auto] lg:grid-rows-[repeat(3,auto)]">
         <Card.Root as="article" className="lg:row-span-full">
           <Card.Header>
             <Text font="serif" variant="gray-soft" size="2">
@@ -35,10 +36,14 @@ export default function SectionTheFrontPage({ latestEntry, entries }: SectionThe
             </Text>
           </Card.Content>
           <Card.Footer>
-            <Avatar size="1" src={latestEntry.sourceLogoUrl} alt={latestEntry.source.slice(0, 1)} />
-            <Text font="serif" variant="gray-soft">
+            <Link font="serif" variant="gray-soft" href={latestEntry.sourceUrl}>
+              <Avatar size="1" src={latestEntry.sourceLogoUrl} alt={latestEntry.source.slice(0, 1)} />
               {latestEntry.source}
-            </Text>
+            </Link>
+            <Text variant="gray-soft">//</Text>
+            <Link font="serif" variant="gray-soft" href={latestEntry.url}>
+              {latestEntry.thumbnailUrl ? 'Watch Video' : 'Read Article'}
+            </Link>
           </Card.Footer>
         </Card.Root>
         <Separator className="lg:row-span-full lg:h-full lg:w-px" />
@@ -64,10 +69,16 @@ export default function SectionTheFrontPage({ latestEntry, entries }: SectionThe
                 </Text>
               </Card.Content>
               <Card.Footer>
-                <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.source.slice(0, 1)} />
-                <Text font="serif" variant="gray-soft" size="2">
+                <Link font="serif" variant="gray-soft" size="2" href={entry.sourceUrl}>
+                  <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.source.slice(0, 1)} />
                   {entry.source}
+                </Link>
+                <Text variant="gray-soft" size="2">
+                  //
                 </Text>
+                <Link font="serif" variant="gray-soft" size="2" href={entry.url}>
+                  {entry.thumbnailUrl ? 'Watch Video' : 'Read Article'}
+                </Link>
               </Card.Footer>
             </Card.Root>
           </Fragment>
