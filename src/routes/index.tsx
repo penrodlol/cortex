@@ -15,7 +15,7 @@ function Home() {
   const { feed } = Route.useLoaderData();
 
   return (
-    <div className="mx-auto mt-24 flex max-w-7xl flex-col gap-12 px-8">
+    <div className="mx-auto my-24 flex max-w-7xl flex-col gap-24 px-8">
       <SectionTheFrontPage latestEntry={feed.entries[0]} entries={feed.entries.slice(1, 3)} />
       <SectionInsideThisEdition entries={feed.entries.slice(3)} />
     </div>

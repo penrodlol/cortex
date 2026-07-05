@@ -11,13 +11,13 @@ export type SectionTheFrontPageProps = { latestEntry: GetFeedResponse['entries']
 
 export default function SectionTheFrontPage({ latestEntry, entries }: SectionTheFrontPageProps) {
   return (
-    <section className="flex flex-col gap-8">
+    <section className="flex flex-col gap-12">
       <div className="border-gray-6 flex items-center justify-center border-y-4 border-double py-4">
         <Text as="h2" font="serif" size="1">
           THE FRONT PAGE
         </Text>
       </div>
-      <div className="grid gap-x-8 gap-y-8 not-lg:mx-auto not-lg:max-w-prose lg:grid-cols-[60%_1fr_auto] lg:grid-rows-[repeat(3,auto)]">
+      <div className="grid gap-8 not-lg:mx-auto not-lg:max-w-prose not-lg:gap-y-12 lg:grid-cols-[60%_1fr_auto] lg:grid-rows-[repeat(3,auto)]">
         <Card.Root as="article" className="lg:row-span-full">
           <Card.Header>
             <Text font="serif" variant="gray-soft" size="2">
