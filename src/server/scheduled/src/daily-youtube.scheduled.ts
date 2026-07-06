@@ -33,7 +33,7 @@ const dailyYoutubeScheduled = async (env: Env, daysAgo: number) => {
       type: ['video'],
       order: 'date',
       maxResults: 20,
-      publishedAfter: new Date(daysAgo * 1000).toISOString(),
+      publishedAfter: new Date(daysAgo).toISOString(),
     });
     const youtubeAllVideos = youtubeVideosData.data.items;
     if (!youtubeAllVideos?.length) continue;

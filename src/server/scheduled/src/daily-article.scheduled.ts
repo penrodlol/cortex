@@ -1,7 +1,7 @@
 import db, { article, type ArticlePublisher } from '@/db';
+import { createQueueEventBody } from '@/server/queue';
 import { gte } from 'drizzle-orm';
 import Parser from 'rss-parser';
-import { createQueueEventBody } from '../../queue';
 import { logError } from '../../utils/logger';
 
 export type DailyArticleScheduledBody = ArticlePublisher & { items: Array<Pick<Parser.Item, 'title' | 'link' | 'pubDate'>> };
@@ -24,7 +24,7 @@ const dailyArticleScheduled = async (env: Env, daysAgo: number) => {
 
       const items = result.value.items
         .map((item) => ({ title: item.title, link: item.link, pubDate: item.pubDate }))
-        .filter((item) => item.pubDate && new Date(item.pubDate).getTime() / 1000 >= daysAgo)
+        .filter((item) => item.pubDate && new Date(item.pubDate).getTime() >= daysAgo)
         .filter((item) => !articlePublisher.articles.some((article) => article.url === item.link));
 
       if (items.length) successful.push({ ...articlePublisher, items });

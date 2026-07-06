@@ -13,7 +13,7 @@ const scheduled: ExportedHandler<Env>['scheduled'] = async (event, env) => {
       .number()
       .int()
       .positive()
-      .transform((value) => Math.floor(Date.now() / 1000) - value * 24 * 60 * 60)
+      .transform((value) => Date.now() - value * 24 * 60 * 60 * 1000)
       .safeParse(env.CLOUDFLARE_DAILY_SCHEDULED_PUBLISHED_DAYS_LIMIT);
     if (!daysAgo.success) {
       logError(SCHEDULED_HANDLER_PUBLISHED_DAYS_LIMIT_ERROR, z.prettifyError(daysAgo.error));
