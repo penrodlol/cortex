@@ -14,11 +14,11 @@ export const buttonVariants = tv({
       'whitespace-nowrap will-change-transform select-none',
       'focus-visible:ring focus-visible:outline-none',
       'disabled:pointer-events-none disabled:opacity-50',
-      'motion-safe:transition-[background-color,color,scale] motion-safe:active:scale-[0.97]',
     ],
   },
-  defaultVariants: { size: '2', variant: 'accent-solid' },
+  defaultVariants: { animate: true, size: '2', variant: 'accent-solid' },
   variants: {
+    animate: { true: 'motion-safe:pressed:scale-[0.97] motion-safe:transition-[background-color,color,scale]' },
     size: {
       '1': { base: 'h-7.5 px-3 text-sm' },
       '2': { base: 'h-8.5 px-4 text-base' },
@@ -29,6 +29,6 @@ export const buttonVariants = tv({
   },
 });
 
-export default function Button({ className, elevation, variant, size, ...props }: ButtonProps) {
-  return <AriaButton className={buttonVariants({ elevation, variant, size }).base({ className })} {...props} />;
+export default function Button({ className, elevation, variant, animate, size, ...props }: ButtonProps) {
+  return <AriaButton className={buttonVariants({ elevation, variant, animate, size }).base({ className })} {...props} />;
 }

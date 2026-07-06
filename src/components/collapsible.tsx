@@ -13,7 +13,7 @@ export type CollapsibleContentVariants = VariantProps<typeof collapsibleContentV
 export const collapsibleTriggerVariants = tv({ variants: { overlay: { true: 'absolute inset-0 z-10 size-full p-0' } } });
 
 export const collapsibleContentVariants = tv({
-  base: 'h-auto overflow-hidden [interpolate-size:allow-keywords] motion-safe:transition-[height]',
+  base: 'pointer-events-none z-20 h-auto overflow-hidden [interpolate-size:allow-keywords] motion-safe:transition-[height]',
   variants: { faded: { true: 'mask-intersect data-collapsed:mask-[linear-gradient(white_0%,white_90%,transparent)]' } },
 });
 
@@ -32,7 +32,7 @@ export function Root<T extends React.ElementType = 'div'>({ as, className, eleva
     <CollapsibleContext value={{ open, setOpen }}>
       <Component
         data-collapsed={open ? undefined : true}
-        className={cn('group/collapsible has-hover:bg-gray-3 relative rounded motion-safe:transition-all', className)}
+        className={cn('group/collapsible relative rounded motion-safe:transition-all', className)}
         {...(props as CollapsibleRootProps<T>)}
       />
     </CollapsibleContext>
@@ -41,7 +41,15 @@ export function Root<T extends React.ElementType = 'div'>({ as, className, eleva
 
 export function Trigger({ className, overlay, ...props }: CollapsibleTriggerProps) {
   const { setOpen } = useCollapsible();
-  return <Button className={collapsibleTriggerVariants({ overlay, className })} onPress={() => setOpen((prev) => !prev)} {...props} />;
+  return (
+    <Button
+      animate={false}
+      variant="gray-ghost"
+      className={collapsibleTriggerVariants({ overlay, className })}
+      onPress={() => setOpen((prev) => !prev)}
+      {...props}
+    />
+  );
 }
 
 export function Content<T extends React.ElementType = 'div'>({ as, className, faded, ...props }: CollapsibleContentProps<T>) {
