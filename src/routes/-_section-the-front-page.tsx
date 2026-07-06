@@ -7,9 +7,9 @@ import { DateTime, Text } from '@/components/typography';
 import type { GetFeedResponse } from '@/server/function/feed';
 import { Fragment } from 'react';
 
-export type SectionTheFrontPageProps = { latestEntry: GetFeedResponse['entries'][number]; entries: GetFeedResponse['entries'] };
+export type SectionTheFrontPageProps = { entries: GetFeedResponse['entries'] };
 
-export default function SectionTheFrontPage({ latestEntry, entries }: SectionTheFrontPageProps) {
+export default function SectionTheFrontPage({ entries }: SectionTheFrontPageProps) {
   return (
     <section className="flex flex-col gap-12">
       <div className="border-gray-6 flex items-center justify-center border-y-4 border-double py-4">
@@ -21,34 +21,34 @@ export default function SectionTheFrontPage({ latestEntry, entries }: SectionThe
         <Card.Root as="article" className="lg:row-span-full">
           <Card.Header>
             <Text font="serif" variant="gray-soft" size="2">
-              {latestEntry.thumbnailUrl ? 'VIDEO' : 'ARTICLE'}
+              {entries[0].thumbnailUrl ? 'VIDEO' : 'ARTICLE'}
             </Text>
             <Text variant="gray-soft" size="2">
               //
             </Text>
-            <DateTime value={latestEntry.pubDate} font="serif" variant="gray-soft" size="2" />
+            <DateTime value={entries[0].pubDate} font="serif" variant="gray-soft" size="2" />
           </Card.Header>
           <Card.Content>
             <Text font="serif" format="balance" size="9">
-              {latestEntry.title}
+              {entries[0].title}
             </Text>
             <Text format="balance" variant="gray-soft" className="leading-6">
-              {latestEntry.summary}
+              {entries[0].summary}
             </Text>
           </Card.Content>
           <Card.Footer>
-            <Link font="serif" variant="gray-soft" href={latestEntry.sourceUrl}>
-              <Avatar size="1" src={latestEntry.sourceLogoUrl} alt={latestEntry.source.slice(0, 1)} />
-              {latestEntry.source}
+            <Link font="serif" variant="gray-soft" href={entries[0].sourceUrl}>
+              <Avatar size="1" src={entries[0].sourceLogoUrl} alt={entries[0].source.slice(0, 1)} />
+              {entries[0].source}
             </Link>
             <Text variant="gray-soft">//</Text>
-            <Link font="serif" variant="gray-soft" href={latestEntry.url}>
-              {latestEntry.thumbnailUrl ? 'Watch Video' : 'Read Article'}
+            <Link font="serif" variant="gray-soft" href={entries[0].url}>
+              {entries[0].thumbnailUrl ? 'Watch Video' : 'Read Article'}
             </Link>
           </Card.Footer>
         </Card.Root>
         <Separator className="lg:row-span-full lg:h-full lg:w-px" />
-        {entries.map((entry, index) => (
+        {entries.slice(1).map((entry, index) => (
           <Fragment key={entry.url}>
             {index > 0 && <Separator />}
             <Card.Root as="article">

@@ -12,13 +12,23 @@ export type GetFeedResponse = NonNullable<Awaited<ReturnType<typeof getFeed>>>;
 export const GET_FEED_ERROR = 'Error Retrieving Feed';
 
 export const GET_FEED_PAGE_SIZE = 15;
+export const GET_FEED_RECENT_SIZE = 3;
 export const GET_FEED_CACHE_TIME = 5 * 60 * 1000;
 export const GET_FEED_DEFAULT_REQUEST: GetFeedRequest = { page: 1 };
 
 export const getFeedRequestSchema = z.object({ page: z.number().positive().optional().default(1) });
 
 export const getFeedQueryOptions = (data: GetFeedRequest) =>
-  queryOptions({ queryKey: ['feed', ...Object.values(data)], queryFn: () => getFeed({ data }), staleTime: GET_FEED_CACHE_TIME });
+  queryOptions({
+    queryKey: ['feed', ...Object.values(data)],
+    queryFn: () => getFeed({ data }),
+    staleTime: GET_FEED_CACHE_TIME,
+    placeholderData: (previousData) => {
+      if (!previousData) return undefined;
+      const entries = data.page - 1 === 1 ? previousData?.entries.slice(GET_FEED_RECENT_SIZE) : previousData?.entries;
+      return { ...previousData, entries };
+    },
+  });
 
 export const getFeed = createServerFn({ method: 'POST' })
   .validator(getFeedRequestSchema)
@@ -60,10 +70,15 @@ export const getFeed = createServerFn({ method: 'POST' })
         .select()
         .from(articlesAndYoutubeVideos)
         .orderBy(desc(articlesAndYoutubeVideos.pubDate), asc(articlesAndYoutubeVideos.title))
-        .limit(GET_FEED_PAGE_SIZE)
-        .offset((data.page - 1) * GET_FEED_PAGE_SIZE);
+        .limit(data.page === 1 ? GET_FEED_PAGE_SIZE + GET_FEED_RECENT_SIZE : GET_FEED_PAGE_SIZE)
+        .offset(data.page === 1 ? 0 : (data.page - 1) * GET_FEED_PAGE_SIZE + GET_FEED_RECENT_SIZE);
 
-      return { entries, hasNextPage: data.page * GET_FEED_PAGE_SIZE < (total?.value ?? 0), hasPreviousPage: data.page > 1 };
+      return {
+        entries,
+        totalPages: 1 + Math.ceil(((total?.value ?? 0) - (GET_FEED_PAGE_SIZE + GET_FEED_RECENT_SIZE)) / GET_FEED_PAGE_SIZE),
+        hasPrevPage: data.page > 1,
+        hasNextPage: data.page * GET_FEED_PAGE_SIZE + GET_FEED_RECENT_SIZE < (total?.value ?? 0),
+      };
     } catch (error) {
       logError(GET_FEED_ERROR, error);
       throw new Error(GET_FEED_ERROR);

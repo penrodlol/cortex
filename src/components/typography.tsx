@@ -82,7 +82,7 @@ export function Text<T extends React.ElementType = 'p'>({
 }
 
 export function Numeric<T extends React.ElementType = 'p'>({ value, options, ...props }: TextFormattedProps<T>) {
-  const formatter = useNumberFormatter({ notation: 'compact', ...options });
+  const formatter = useNumberFormatter({ notation: 'compact', minimumIntegerDigits: 2, ...options });
   return <Text {...(props as TextProps<T>)}>{formatter.format(value)}</Text>;
 }
 
