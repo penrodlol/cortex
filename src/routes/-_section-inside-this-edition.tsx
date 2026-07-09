@@ -5,6 +5,7 @@ import Link from '@/components/link';
 import { Separator } from '@/components/separator';
 import { DateTime, Numeric, Text } from '@/components/typography';
 import type { GetFeedResponse } from '@/server/function/feed';
+import { useRef } from 'react';
 
 export type SectionInsideThisEditionProps = GetFeedResponse & {
   page: number;
@@ -25,8 +26,10 @@ export default function SectionInsideThisEdition({
   onPrevPageHover,
   onNextPageHover,
 }: SectionInsideThisEditionProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+
   return (
-    <section className="flex flex-col gap-12">
+    <section ref={sectionRef} className="flex scroll-mt-12 flex-col gap-12">
       <div className="border-gray-6 flex items-center justify-center border-y-4 border-double py-5">
         <Text as="h2" font="serif" size="1">
           INSIDE THIS EDITION
@@ -80,7 +83,7 @@ export default function SectionInsideThisEdition({
             <Button
               variant="gray-ghost"
               isDisabled={!hasPrevPage}
-              onClick={onPrevPageClick}
+              onClick={() => (sectionRef.current?.scrollIntoView(), onPrevPageClick())}
               onMouseEnter={() => hasPrevPage && onPrevPageHover()}
             >
               Previous
@@ -88,7 +91,7 @@ export default function SectionInsideThisEdition({
             <Button
               variant="gray-ghost"
               isDisabled={!hasNextPage}
-              onClick={onNextPageClick}
+              onClick={() => (sectionRef.current?.scrollIntoView(), onNextPageClick())}
               onMouseEnter={() => hasNextPage && onNextPageHover()}
             >
               Next
