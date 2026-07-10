@@ -17,7 +17,7 @@ export default function SectionTheFrontPage({ entries }: SectionTheFrontPageProp
           THE FRONT PAGE
         </Text>
       </div>
-      <div className="grid gap-8 not-lg:mx-auto not-lg:max-w-prose not-lg:gap-y-12 lg:grid-cols-[60%_1fr_auto] lg:grid-rows-[repeat(3,auto)]">
+      <div className="grid gap-8 not-lg:mx-auto not-lg:max-w-prose not-lg:gap-y-12 lg:grid-cols-[60%_1fr_auto] lg:grid-rows-[auto_auto_1fr]">
         <Card.Root as="article" className="lg:row-span-full">
           <Card.Header>
             <Text font="serif" variant="gray-soft" size="2">
