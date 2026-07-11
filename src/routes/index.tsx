@@ -20,7 +20,7 @@ function Home() {
   const { data: feed, isLoading } = useQuery(getFeedQueryOptions({ page }));
 
   return (
-    <div className="mx-auto my-24 flex max-w-7xl flex-col gap-24 px-8">
+    <div className="flex flex-col gap-24">
       <SectionTheFrontPage entries={recentEntries} />
       <SectionInsideThisEdition
         hasPrevPage={feed?.hasPrevPage || isLoading}

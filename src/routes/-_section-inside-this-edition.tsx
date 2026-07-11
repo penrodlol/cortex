@@ -2,7 +2,6 @@ import * as Accordion from '@/components/accordion';
 import { Avatar } from '@/components/avatar';
 import Button from '@/components/button';
 import Link from '@/components/link';
-import { Separator } from '@/components/separator';
 import { DateTime, Numeric, Text } from '@/components/typography';
 import type { GetFeedResponse } from '@/server/function/feed';
 import { useRef } from 'react';
@@ -35,7 +34,7 @@ export default function SectionInsideThisEdition({
           INSIDE THIS EDITION
         </Text>
       </div>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-12">
         <Accordion.Root>
           {entries.map((entry) => (
             <Accordion.Item key={entry.url}>
@@ -72,7 +71,6 @@ export default function SectionInsideThisEdition({
             </Accordion.Item>
           ))}
         </Accordion.Root>
-        <Separator />
         <div className="-mr-4 flex items-center justify-between">
           <div className="flex items-center gap-2 select-none">
             <Numeric font="serif" variant="gray-soft" value={page} className="min-w-[2ch]" />
