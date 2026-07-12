@@ -64,6 +64,20 @@
       "when": 1783106008569,
       "tag": "0008_curious_satana",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1783880511692,
+      "tag": "0009_secret_living_lightning",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1783880795693,
+      "tag": "0010_sad_joseph",
+      "breakpoints": true
     }
   ]
 }

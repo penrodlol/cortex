@@ -65,17 +65,10 @@ export const youtubeVideo = sqliteTable('youtube_video', {
 
 export const summary = sqliteTable('summary', {
   id: primaryKey,
-  name: text({
-    enum: [
-      'total_article_publishers',
-      'total_articles',
-      'total_youtube_channels',
-      'total_youtube_videos',
-      'total_articles_and_youtube_videos',
-    ],
-  })
+  name: text({ enum: ['total_article_publishers', 'total_articles', 'total_youtube_channels', 'total_youtube_videos'] })
     .unique()
     .notNull(),
+  label: text().unique().notNull(),
   value: integer().notNull(),
   createdAt,
 });
