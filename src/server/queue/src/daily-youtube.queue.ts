@@ -3,8 +3,10 @@ import supadata from '@/libs/supadata';
 import type { TranscriptOrJobId } from '@supadata/js';
 import { z } from 'zod';
 import type { DailyYoutubeScheduledBody } from '../../scheduled/src/daily-youtube.scheduled';
+import { executeWithRetry } from '../../utils/function';
 import { logError } from '../../utils/logger';
 import { summarize } from '../../utils/prompt';
+import { sleep } from '../../utils/sleep';
 
 export const DAILY_YOUTUBE_QUEUE_INVALID_REPING_LIMIT_ERROR = 'Invalid Reping Limit';
 export const DAILY_YOUTUBE_QUEUE_INVALID_REPING_DELAY_ERROR = 'Invalid Reping Delay';
@@ -12,59 +14,60 @@ export const DAILY_YOUTUBE_QUEUE_NO_JOB_ID_ERROR = 'No Job ID Found';
 export const DAILY_YOUTUBE_QUEUE_COMPLETED_WITH_EMPTY_CONTENT_ERROR = 'Completed With Empty Content';
 export const DAILY_YOUTUBE_QUEUE_TRANSCRIPT_POLLING_FAILED_ERROR = 'Transcript Polling Failed';
 export const DAILY_YOUTUBE_QUEUE_MAX_REPING_LIMIT_REACHED_ERROR = 'Max Reping Limit Reached';
-export const DAILY_YOUTUBE_QUEUE_TRANSCRIPT_RETRIEVAL_FAILED_ERROR = 'Transcript Retrieval Failed';
+export const DAILY_YOUTUBE_QUEUE_ERROR = 'Daily Youtube Queue Error';
 
-const handler = async (env: Env, body: DailyYoutubeScheduledBody, retryLimit: number) => {
+const handler = async (env: Env, body: DailyYoutubeScheduledBody) => {
   const repingLimit = z.coerce.number().int().nonnegative().safeParse(env.CLOUDFLARE_DAILY_QUEUE_REPING_LIMIT);
-  if (!repingLimit.success) return logError(DAILY_YOUTUBE_QUEUE_INVALID_REPING_LIMIT_ERROR, z.prettifyError(repingLimit.error));
+  if (!repingLimit.success) throw new Error(DAILY_YOUTUBE_QUEUE_INVALID_REPING_LIMIT_ERROR, { cause: z.prettifyError(repingLimit.error) });
 
-  const repingDelay = z.coerce.number().int().nonnegative().safeParse(env.CLOUDFLARE_DAILY_QUEUE_REPING_DELAY);
-  if (!repingDelay.success) return logError(DAILY_YOUTUBE_QUEUE_INVALID_REPING_DELAY_ERROR, z.prettifyError(repingDelay.error));
-
-  const success: Array<Omit<YoutubeVideo, 'id' | 'createdAt'>> = [];
+  const successful: Array<Omit<YoutubeVideo, 'id' | 'createdAt'>> = [];
+  const failed: Array<Partial<YoutubeVideo> & { error: unknown }> = [];
 
   for (const item of body.items) {
-    if (!item.id?.videoId || !item.snippet?.title || !item.snippet?.publishedAt || !item.snippet?.thumbnails?.high?.url) continue;
+    if (!item.snippet?.resourceId?.videoId || !item.snippet?.title || !item.snippet?.publishedAt || !item.snippet?.thumbnails?.high?.url)
+      continue;
 
-    const youtubeUrl = `https://www.youtube.com/watch?v=${item.id.videoId}`;
-    const youtubeTranscript = await getYoutubeTranscript(youtubeUrl, retryLimit, repingLimit.data, repingDelay.data);
-    if (!youtubeTranscript) continue;
-    const youtubeTranscriptSummary = await summarize(env, 'daily_youtube_queue_ai_response', youtubeTranscript, retryLimit);
-    if (!youtubeTranscriptSummary) continue;
+    const youtubeVideoId = item.snippet.resourceId.videoId;
+    const youtubeVideoUrl = `https://www.youtube.com/watch?v=${youtubeVideoId}`;
+    const youtubeVideoTranscript = await executeWithRetry(async () => {
+      await sleep();
+      return supadata.transcript({ url: youtubeVideoUrl, lang: 'en', text: true, mode: 'auto' });
+    });
+    if (!youtubeVideoTranscript.success) {
+      failed.push({ videoId: youtubeVideoId, title: item.snippet.title, error: youtubeVideoTranscript.error });
+      continue;
+    }
 
-    success.push({
-      videoId: item.id.videoId,
+    const youtubeTranscriptPolledRequest = await getYoutubeTranscriptPolled(youtubeVideoTranscript.data, repingLimit.data);
+    if (!youtubeTranscriptPolledRequest.success) {
+      failed.push({ videoId: youtubeVideoId, title: item.snippet.title, error: youtubeTranscriptPolledRequest.error });
+      continue;
+    }
+
+    const youtubeTranscriptSummary = await executeWithRetry(async () => {
+      await sleep();
+      return summarize(env, 'daily_youtube_queue_ai_response', youtubeTranscriptPolledRequest.data);
+    });
+    if (!youtubeTranscriptSummary.success) {
+      failed.push({ videoId: youtubeVideoId, title: item.snippet.title, error: youtubeTranscriptSummary.error });
+      continue;
+    }
+
+    successful.push({
+      videoId: youtubeVideoId,
       title: item.snippet.title,
       thumbnailUrl: item.snippet.thumbnails.high.url,
-      summary: youtubeTranscriptSummary,
+      summary: youtubeTranscriptSummary.data,
       pubDate: new Date(item.snippet.publishedAt).getTime(),
       youtubeChannelId: body.id,
     });
   }
 
-  if (success.length) await db.insert(youtubeVideo).values(success).onConflictDoNothing();
+  if (successful.length) await executeWithRetry(() => db.insert(youtubeVideo).values(successful).onConflictDoNothing());
+  if (failed.length) logError(DAILY_YOUTUBE_QUEUE_ERROR, { failed });
 };
 
-async function getYoutubeTranscript(youtubeUrl: string, retryLimit: number, repingLimit: number, repingDelay: number) {
-  let retry = 0;
-  while (retry < retryLimit) {
-    try {
-      const youtubeTranscriptRequest = await supadata.transcript({ url: youtubeUrl, lang: 'en', text: true, mode: 'auto' });
-      const youtubeTranscriptPolledRequest = await getYoutubeTranscriptPolled(youtubeTranscriptRequest, repingLimit, repingDelay);
-      if (!youtubeTranscriptPolledRequest.success) {
-        logError(youtubeTranscriptPolledRequest.error, { youtubeUrl, youtubeTranscriptRequest });
-        retry++;
-        continue;
-      }
-      return youtubeTranscriptPolledRequest.data;
-    } catch (error) {
-      logError(DAILY_YOUTUBE_QUEUE_TRANSCRIPT_RETRIEVAL_FAILED_ERROR, { youtubeUrl, error });
-      retry++;
-    }
-  }
-}
-
-async function getYoutubeTranscriptPolled(request: TranscriptOrJobId, repingLimit: number, repingDelay: number, reping = 0) {
+async function getYoutubeTranscriptPolled(request: TranscriptOrJobId, repingLimit: number, reping = 0) {
   if (!('jobId' in request))
     return request.content
       ? ({ success: true, data: String(request.content) } as const)
@@ -80,8 +83,8 @@ async function getYoutubeTranscriptPolled(request: TranscriptOrJobId, repingLimi
       return { success: false, error: DAILY_YOUTUBE_QUEUE_TRANSCRIPT_POLLING_FAILED_ERROR } as const;
     default: {
       if (reping >= repingLimit) return { success: false, error: DAILY_YOUTUBE_QUEUE_MAX_REPING_LIMIT_REACHED_ERROR } as const;
-      await new Promise((resolve) => setTimeout(resolve, repingDelay));
-      return getYoutubeTranscriptPolled(request, repingLimit, repingDelay, reping + 1);
+      await sleep();
+      return getYoutubeTranscriptPolled(request, repingLimit, reping + 1);
     }
   }
 }

@@ -1,9 +1,6 @@
 import { z } from 'zod';
-import { logError } from './logger';
 
-export const PROMPT_SUMMARIZE_ERROR = 'Prompt AI Summarization Failed';
-
-export async function summarize(env: Env, name: string, content: string, retryLimit: number) {
+export async function summarize(env: Env, name: string, content: string) {
   const prompt = `
   Summarize the content.
   
@@ -27,25 +24,12 @@ export async function summarize(env: Env, name: string, content: string, retryLi
     z.object({ summary: z.string().min(1) }),
   );
 
-  let retry = 0;
-
-  while (retry < retryLimit) {
-    try {
-      const aiRunResponse = await env.AI.run(env.CLOUDFLARE_AI_MODEL, {
-        messages: [{ role: 'user', content: prompt }],
-        response_format: { type: 'json_schema', json_schema: { ...z.toJSONSchema(schema), name, strict: true } },
-      });
-      const aiRunResponseText = (aiRunResponse as ChatCompletionsOutput)?.choices?.[0]?.message?.content;
-      const aiRunResponseJson = schema.safeParse(JSON.parse(aiRunResponseText ?? '{}'));
-      if (!aiRunResponseJson.success) {
-        logError(PROMPT_SUMMARIZE_ERROR, z.prettifyError(aiRunResponseJson.error));
-        retry++;
-        continue;
-      }
-      return aiRunResponseJson.data.summary;
-    } catch (error) {
-      logError(PROMPT_SUMMARIZE_ERROR, { name, error });
-      retry++;
-    }
-  }
+  const aiRunResponse = await env.AI.run(env.CLOUDFLARE_AI_MODEL, {
+    messages: [{ role: 'user', content: prompt }],
+    response_format: { type: 'json_schema', json_schema: { ...z.toJSONSchema(schema), name, strict: true } },
+  });
+  const aiRunResponseText = (aiRunResponse as ChatCompletionsOutput)?.choices?.[0]?.message?.content;
+  const aiRunResponseJson = schema.safeParse(JSON.parse(aiRunResponseText ?? '{}'));
+  if (!aiRunResponseJson.success) throw new Error(z.prettifyError(aiRunResponseJson.error));
+  return aiRunResponseJson.data.summary;
 }

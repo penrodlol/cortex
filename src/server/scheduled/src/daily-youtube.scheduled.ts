@@ -3,60 +3,75 @@ import youtube from '@/libs/youtube';
 import type { youtube_v3 } from '@googleapis/youtube';
 import { gte } from 'drizzle-orm';
 import { createQueueEventBody } from '../../queue';
+import { executeWithRetry } from '../../utils/function';
 import { logError } from '../../utils/logger';
+import { sleep } from '../../utils/sleep';
 
-export type DailyYoutubeScheduledBody = YoutubeChannel & { items: Array<youtube_v3.Schema$SearchResult> };
+export type DailyYoutubeScheduledBody = YoutubeChannel & { items: Array<youtube_v3.Schema$PlaylistItem> };
 
 export const DAILY_YOUTUBE_SCHEDULED_NO_CHANNELS_FOUND = 'No YouTube Channels Found In Database';
-export const DAILY_YOUTUBE_SCHEDULED_NO_CHANNEL_ID_FOUND = 'No YouTube Channel ID Found For Handle';
-export const DAILY_YOUTUBE_SCHEDULED_NO_VIDEO_ID_FOUND = 'No YouTube Video ID Found For Video';
-export const DAILY_YOUTUBE_SCHEDULED_ERROR = 'Error Occurred While Processing YouTube Channels';
+export const DAILY_YOUTUBE_SCHEDULED_ERROR = 'Daily Youtube Scheduled Error';
 
 const dailyYoutubeScheduled = async (env: Env, daysAgo: number) => {
-  const youtubeChannels = await db.query.youtubeChannel.findMany({ with: { videos: { where: gte(youtubeVideo.pubDate, daysAgo) } } });
-  if (!youtubeChannels.length) throw new Error(DAILY_YOUTUBE_SCHEDULED_NO_CHANNELS_FOUND);
+  const youtubeChannels = await executeWithRetry(async () =>
+    db.query.youtubeChannel.findMany({ with: { videos: { where: gte(youtubeVideo.pubDate, daysAgo) } } }),
+  );
+  if (!youtubeChannels.success || !youtubeChannels.data.length) throw new Error(DAILY_YOUTUBE_SCHEDULED_NO_CHANNELS_FOUND);
 
   const successful: Array<DailyYoutubeScheduledBody> = [];
   const failed: Array<YoutubeChannel & { error: unknown }> = [];
 
-  for (const youtubeChannel of youtubeChannels) {
-    const youtubeChannelWithId = await youtube.channels.list({ part: ['id'], forHandle: youtubeChannel.handle });
-    const youtubeChannelId = youtubeChannelWithId.data.items?.[0]?.id;
-    if (!youtubeChannelId) {
-      failed.push({ ...youtubeChannel, error: DAILY_YOUTUBE_SCHEDULED_NO_CHANNEL_ID_FOUND });
+  for (const youtubeChannel of youtubeChannels.data) {
+    const youtubeChannelWithContent = await executeWithRetry(async () => {
+      await sleep();
+      return youtube.channels.list({ part: ['id', 'contentDetails'], forHandle: youtubeChannel.handle });
+    });
+    if (!youtubeChannelWithContent.success) {
+      failed.push({ ...youtubeChannel, error: youtubeChannelWithContent.error });
       continue;
     }
 
-    const youtubeVideosData = await youtube.search.list({
-      channelId: youtubeChannelId,
-      part: ['id', 'snippet'],
-      type: ['video'],
-      order: 'date',
-      maxResults: 20,
-      publishedAfter: new Date(daysAgo).toISOString(),
+    const youtubeChannelAllVideos = await executeWithRetry(async () => {
+      await sleep();
+      const youtubeChannelAllVideos = await youtube.playlistItems.list({
+        part: ['id', 'snippet'],
+        playlistId: youtubeChannelWithContent.data.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads,
+        maxResults: 20,
+      });
+      return youtubeChannelAllVideos.data.items?.filter(
+        (item) => item.snippet?.publishedAt && new Date(item.snippet.publishedAt).getTime() >= daysAgo,
+      );
     });
-    const youtubeAllVideos = youtubeVideosData.data.items;
-    if (!youtubeAllVideos?.length) continue;
-
-    const youtubeVideos: typeof youtubeAllVideos = [];
-
-    for (const youtubeVideo of youtubeAllVideos) {
-      if (!youtubeVideo.id?.videoId) {
-        failed.push({ ...youtubeChannel, error: DAILY_YOUTUBE_SCHEDULED_NO_VIDEO_ID_FOUND });
-        continue;
-      }
-
-      const youtubeVideoId = youtubeVideo.id.videoId;
-      const isYoutubeVideoShort = await fetch(`https://www.youtube.com/shorts/${youtubeVideoId}`, { method: 'HEAD', redirect: 'manual' });
-      if (isYoutubeVideoShort.status !== 200 && !youtubeChannel.videos.some((video) => video.videoId === youtubeVideoId))
-        youtubeVideos.push(youtubeVideo);
+    if (!youtubeChannelAllVideos.success) {
+      failed.push({ ...youtubeChannel, error: youtubeChannelAllVideos.error });
+      continue;
     }
 
-    if (youtubeVideos.length) successful.push({ ...youtubeChannel, items: youtubeVideos });
+    const youtubeChannelVideos: NonNullable<(typeof youtubeChannelAllVideos)['data']> = [];
+
+    for (const youtubeChannelVideo of youtubeChannelAllVideos.data ?? []) {
+      const youtubeChannelVideoId = youtubeChannelVideo.snippet?.resourceId?.videoId;
+      if (!youtubeChannelVideoId) continue;
+
+      const isYoutubeChannelVideoValid = await executeWithRetry(async () => {
+        await sleep();
+        const request = await fetch(`https://www.youtube.com/shorts/${youtubeChannelVideoId}`, { method: 'HEAD', redirect: 'manual' });
+        return request.status !== 200 && !youtubeChannel.videos.some((video) => video.videoId === youtubeChannelVideoId);
+      });
+      if (!isYoutubeChannelVideoValid.success) {
+        failed.push({ ...youtubeChannel, error: isYoutubeChannelVideoValid.error });
+        continue;
+      }
+      if (isYoutubeChannelVideoValid.data) youtubeChannelVideos.push(youtubeChannelVideo);
+    }
+
+    if (youtubeChannelVideos.length) successful.push({ ...youtubeChannel, items: youtubeChannelVideos });
   }
 
   if (successful.length)
-    await env.QUEUE.sendBatch(successful.map((body) => ({ body: createQueueEventBody('daily-youtube', body), delaySeconds: 2 })));
+    await executeWithRetry(() =>
+      env.QUEUE.sendBatch(successful.map((body) => ({ body: createQueueEventBody('daily-youtube', body), delaySeconds: 2 }))),
+    );
   if (failed.length) logError(DAILY_YOUTUBE_SCHEDULED_ERROR, { failed });
 };
 
