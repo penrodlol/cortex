@@ -1,22 +1,27 @@
 import db, { article, type ArticlePublisher } from '@/db';
 import { gte } from 'drizzle-orm';
 import Parser from 'rss-parser';
+import { z } from 'zod';
 import { createQueueEventBody } from '../../queue';
 import { executeWithRetry } from '../../utils/function';
 import { logError } from '../../utils/logger';
 
 export type DailyArticleScheduledBody = ArticlePublisher & { items: Array<Pick<Parser.Item, 'title' | 'link' | 'pubDate'>> };
 
+export const DAILY_ARTICLE_SCHEDULED_INVALID_USER_AGENT_ERROR = 'Invalid User Agent';
 export const DAILY_ARTICLE_SCHEDULED_NO_ARTICLE_PUBLISHERS_ERROR = 'No Article Publishers Found In Database';
 export const DAILY_ARTICLE_SCHEDULED_ERROR = 'Daily Article Scheduled Error';
 
 const dailyArticleScheduled = async (env: Env, daysAgo: number) => {
+  const userAgent = z.string().nonempty().safeParse(env.CLOUDFLARE_DAILY_SCHEDULED_USER_AGENT);
+  if (!userAgent.success) throw new Error(`${DAILY_ARTICLE_SCHEDULED_INVALID_USER_AGENT_ERROR}: ${z.prettifyError(userAgent.error)}`);
+
   const articlePublishers = await executeWithRetry(() =>
     db.query.articlePublisher.findMany({ with: { articles: { where: gte(article.pubDate, daysAgo) } } }),
   );
   if (!articlePublishers.success || !articlePublishers.data.length) throw new Error(DAILY_ARTICLE_SCHEDULED_NO_ARTICLE_PUBLISHERS_ERROR);
 
-  const parser = new Parser();
+  const parser = new Parser({ headers: { 'User-Agent': userAgent.data } });
   const successful: Array<DailyArticleScheduledBody> = [];
   const failed: Array<ArticlePublisher & { error: unknown }> = [];
 
