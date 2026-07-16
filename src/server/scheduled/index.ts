@@ -7,7 +7,7 @@ export const SCHEDULED_HANDLER_INVALID_PUBLISHED_DAYS_LIMIT_ERROR = 'Invalid Pub
 export const SCHEDULED_HANDLER_NO_HANDLER_ERROR = 'No Handler for Scheduled';
 export const SCHEDULED_HANDLER_ERROR = 'Error Processing Scheduled';
 
-const scheduled: ExportedHandler<Env>['scheduled'] = async (event, env) => {
+const handler: ExportedHandler<Env>['scheduled'] = async (event, env) => {
   try {
     const daysAgo = z.coerce
       .number()
@@ -33,4 +33,4 @@ const scheduled: ExportedHandler<Env>['scheduled'] = async (event, env) => {
   }
 };
 
-export default scheduled;
+export default handler;

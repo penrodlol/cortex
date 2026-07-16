@@ -10,7 +10,7 @@ export const createQueueEventBody = <D extends unknown, T extends QueueEventType
 export const QUEUE_HANDLER_NO_HANDLER_ERROR = 'No Handler for Queue Event';
 export const QUEUE_HANDLER_ERROR = 'Error Processing Queue';
 
-const queue: ExportedHandler<Env, ReturnType<typeof createQueueEventBody>>['queue'] = async (batch, env) => {
+const handler: ExportedHandler<Env, ReturnType<typeof createQueueEventBody>>['queue'] = async (batch, env) => {
   try {
     await Promise.all(
       batch.messages.map((message) => {
@@ -29,4 +29,4 @@ const queue: ExportedHandler<Env, ReturnType<typeof createQueueEventBody>>['queu
   }
 };
 
-export default queue;
+export default handler;
