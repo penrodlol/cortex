@@ -16,7 +16,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="selection:bg-accent-5 scrollbar-thin antialiased">
+    <html lang="en" className="selection:bg-accent-5 scrollbar scrollbar-gutter-stable antialiased">
       <head>
         <ScriptOnce children={THEME_INIT_SCRIPT} />
         <HeadContent />

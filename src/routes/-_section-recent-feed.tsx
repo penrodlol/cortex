@@ -4,18 +4,18 @@ import * as Collapsible from '@/components/collapsible';
 import Link from '@/components/link';
 import { Separator } from '@/components/separator';
 import { DateTime, Text } from '@/components/typography';
-import type { GetFeedResponse } from '@/server/function/feed';
+import type { GetFeedMetadataResponse } from '@/server/fetch/src/feed';
 import { Fragment } from 'react';
 
-export type SectionTheFrontPageProps = { entries: GetFeedResponse['entries'] };
+export type SectionRecentFeedProps = { entries: GetFeedMetadataResponse['recentFeedEntries'] };
 
-export default function SectionTheFrontPage({ entries }: SectionTheFrontPageProps) {
+export default function SectionRecentFeed({ entries }: SectionRecentFeedProps) {
   return (
     <section className="grid gap-8 not-lg:mx-auto not-lg:max-w-prose not-lg:gap-y-12 lg:grid-cols-[60%_1fr_auto] lg:grid-rows-[auto_auto_1fr]">
       <Card.Root as="article" className="lg:row-span-full">
         <Card.Header>
           <Text font="serif" variant="gray-soft" size="2">
-            {entries[0].thumbnailUrl ? 'VIDEO' : 'ARTICLE'}
+            {entries[0].type.toUpperCase()}
           </Text>
           <Text variant="gray-soft" size="2">
             //
@@ -32,12 +32,12 @@ export default function SectionTheFrontPage({ entries }: SectionTheFrontPageProp
         </Card.Content>
         <Card.Footer>
           <Link font="serif" variant="gray-soft" href={entries[0].sourceUrl}>
-            <Avatar size="1" src={entries[0].sourceLogoUrl} alt={entries[0].source.slice(0, 1)} />
-            {entries[0].source}
+            <Avatar size="1" src={entries[0].sourceLogoUrl} alt={entries[0].sourceName.slice(0, 1)} />
+            {entries[0].sourceName}
           </Link>
           <Text variant="gray-soft">//</Text>
           <Link font="serif" variant="gray-soft" href={entries[0].url}>
-            {entries[0].thumbnailUrl ? 'Watch Video' : 'Read Article'}
+            {entries[0].urlLabel}
           </Link>
         </Card.Footer>
       </Card.Root>
@@ -48,7 +48,7 @@ export default function SectionTheFrontPage({ entries }: SectionTheFrontPageProp
           <Card.Root as="article">
             <Card.Header>
               <Text font="serif" variant="gray-soft" size="1">
-                {entry.thumbnailUrl ? 'VIDEO' : 'ARTICLE'}
+                {entry.type.toUpperCase()}
               </Text>
               <Text variant="gray-soft" size="1">
                 //
@@ -68,14 +68,14 @@ export default function SectionTheFrontPage({ entries }: SectionTheFrontPageProp
             </Collapsible.Root>
             <Card.Footer>
               <Link font="serif" variant="gray-soft" size="2" href={entry.sourceUrl}>
-                <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.source.slice(0, 1)} />
-                {entry.source}
+                <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.sourceName.slice(0, 1)} />
+                {entry.sourceName}
               </Link>
               <Text variant="gray-soft" size="2">
                 //
               </Text>
               <Link font="serif" variant="gray-soft" size="2" href={entry.url}>
-                {entry.thumbnailUrl ? 'Watch Video' : 'Read Article'}
+                {entry.urlLabel}
               </Link>
             </Card.Footer>
           </Card.Root>

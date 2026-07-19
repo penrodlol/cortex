@@ -1,37 +1,41 @@
-import { GET_FEED_DEFAULT_REQUEST, GET_FEED_RECENT_SIZE, getFeedQueryOptions } from '@/server/function/feed';
+import { GET_FEED_DEFAULT_REQUEST, getFeedMetadataQueryOptions, getFeedQueryOptions } from '@/server/fetch/src/feed';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import SectionInsideThisEdition from './-_section-inside-this-edition';
-import SectionTheFrontPage from './-_section-the-front-page';
+import SectionFeed from './-_section-feed';
+import SectionRecentFeed from './-_section-recent-feed';
 
 export const Route = createFileRoute('/')({
   component: Home,
   loader: async ({ context }) => {
-    const feed = await context.queryClient.ensureQueryData(getFeedQueryOptions(GET_FEED_DEFAULT_REQUEST));
-    return { recentEntries: feed.entries.slice(0, GET_FEED_RECENT_SIZE) };
+    const feedMetadata = await context.queryClient.ensureQueryData(getFeedMetadataQueryOptions());
+    const feedInitialFilterProps = { ...GET_FEED_DEFAULT_REQUEST, excludedUrls: feedMetadata.recentFeedEntries.map((entry) => entry.url) };
+    const feed = await context.queryClient.ensureQueryData(getFeedQueryOptions(feedInitialFilterProps));
+    return { feedMetadata, feedInitialFilterProps, feed };
   },
 });
 
 function Home() {
-  const { recentEntries } = Route.useLoaderData();
+  const { feedMetadata, feedInitialFilterProps } = Route.useLoaderData();
   const { queryClient } = Route.useRouteContext();
-  const [page, setPage] = useState(GET_FEED_DEFAULT_REQUEST.page);
-  const { data: feed, isLoading } = useQuery(getFeedQueryOptions({ page }));
+  const [filterProps, setFilterProps] = useState(feedInitialFilterProps);
+  const { data: filteredFeed, isLoading } = useQuery(getFeedQueryOptions(filterProps));
 
   return (
     <div className="flex flex-col gap-24">
-      <SectionTheFrontPage entries={recentEntries} />
-      <SectionInsideThisEdition
-        hasPrevPage={feed?.hasPrevPage || isLoading}
-        hasNextPage={feed?.hasNextPage || isLoading}
-        entries={(feed?.entries ?? []).slice(page === 1 ? GET_FEED_RECENT_SIZE : 0)}
-        totalPages={feed?.totalPages ?? 0}
-        page={page}
-        onPrevPageClick={() => setPage((prev) => prev - 1)}
-        onNextPageClick={() => setPage((prev) => prev + 1)}
-        onPrevPageHover={() => queryClient.prefetchQuery(getFeedQueryOptions({ page: page - 1 }))}
-        onNextPageHover={() => queryClient.prefetchQuery(getFeedQueryOptions({ page: page + 1 }))}
+      <SectionRecentFeed entries={feedMetadata.recentFeedEntries} />
+      <SectionFeed
+        types={feedMetadata.types}
+        publishers={feedMetadata.publishers}
+        hasPreviousPage={filteredFeed?.hasPreviousPage || isLoading}
+        hasNextPage={filteredFeed?.hasNextPage || isLoading}
+        entries={filteredFeed?.entries ?? []}
+        onTypesFilterChange={(types) => setFilterProps((prev) => ({ ...prev, types }))}
+        onPublisherIdsFilterChange={(publisherIds) => setFilterProps((prev) => ({ ...prev, publisherIds }))}
+        onPreviousPageClick={() => setFilterProps((prev) => ({ ...prev, page: prev.page - 1 }))}
+        onNextPageClick={() => setFilterProps((prev) => ({ ...prev, page: prev.page + 1 }))}
+        onPreviousPageHover={() => queryClient.prefetchQuery(getFeedQueryOptions({ ...filterProps, page: filterProps.page - 1 }))}
+        onNextPageHover={() => queryClient.prefetchQuery(getFeedQueryOptions({ ...filterProps, page: filterProps.page + 1 }))}
       />
     </div>
   );
