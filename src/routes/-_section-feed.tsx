@@ -6,7 +6,7 @@ import SearchField from '@/components/searchfield';
 import * as Select from '@/components/select';
 import { DateTime, Text } from '@/components/typography';
 import type { GetFeedMetadataResponse, GetFeedRequest, GetFeedResponse } from '@/server/fetch/src/feed';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useFilter } from 'react-aria-components/Autocomplete';
 
 export type SectionFeedProps = Partial<GetFeedMetadataResponse & GetFeedResponse> & {
@@ -32,6 +32,8 @@ export default function SectionFeed({
   onNextPageHover,
 }: SectionFeedProps) {
   const sectionRef = useRef<HTMLElement>(null);
+  const [typesFilter, setTypesFilter] = useState<GetFeedRequest['types']>([]);
+  const [publisherIdsFilter, setPublisherIdsFilter] = useState<GetFeedRequest['publisherIds']>([]);
   const { contains: publisherContains } = useFilter({ sensitivity: 'base' });
 
   return (
@@ -42,7 +44,8 @@ export default function SectionFeed({
           placeholder="Filter by type"
           selectionMode="multiple"
           className="lg:w-50"
-          onChange={(event) => onTypesFilterChange(event as GetFeedRequest['types'])}
+          value={typesFilter}
+          onChange={(event) => (onTypesFilterChange(event as GetFeedRequest['types']), setTypesFilter(event as GetFeedRequest['types']))}
         >
           <Select.Trigger variant="gray-soft" />
           <Select.Content>
@@ -56,7 +59,11 @@ export default function SectionFeed({
           placeholder="Filter by publisher"
           selectionMode="multiple"
           className="lg:w-60"
-          onChange={(event) => onPublisherIdsFilterChange(event as GetFeedRequest['publisherIds'])}
+          value={publisherIdsFilter}
+          onChange={(event) => (
+            onPublisherIdsFilterChange(event as GetFeedRequest['publisherIds']),
+            setPublisherIdsFilter(event as GetFeedRequest['publisherIds'])
+          )}
         >
           <Select.Trigger variant="gray-soft" />
           <Select.Content filterProps={{ filter: publisherContains }}>
@@ -65,6 +72,14 @@ export default function SectionFeed({
           </Select.Content>
         </Select.Root>
       </div>
+      {!entries?.length && (typesFilter?.length || publisherIdsFilter?.length) && (
+        <div className="mx-auto flex flex-col items-center justify-center gap-2 text-center">
+          <Text italic font="serif" size="8">
+            No Results Found
+          </Text>
+          <Text variant="gray-soft">No results were found for the selected filters</Text>
+        </div>
+      )}
       <div className="flex flex-col gap-12">
         <Accordion.Root>
           {entries?.map((entry) => (
@@ -102,6 +117,7 @@ export default function SectionFeed({
             </Accordion.Item>
           ))}
         </Accordion.Root>
+
         <div className="-mx-4 flex items-center justify-end lg:justify-between">
           <Button
             variant="gray-ghost"
