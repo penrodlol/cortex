@@ -106,10 +106,11 @@ export function Popover({ className, ...props }: SelectPopoverProps) {
       opaque
       variant="gray-surface-outline"
       className={cn(
-        'w-(--trigger-width) outline-none select-none',
+        'flex max-h-96 w-(--trigger-width) flex-col overflow-hidden outline-none select-none',
         'exiting:duration-0 entering:opacity-0 origin-(--trigger-anchor-point) motion-safe:transition-all',
         'placement-bottom:entering:-translate-y-1 placement-top:entering:translate-y-1',
         'placement-left:entering:translate-x-1 placement-right:entering:-translate-x-1',
+        '*:has-[[type=search]]:h-14 *:has-[[type=search]]:shrink-0',
         className,
       )}
       {...props}
@@ -142,7 +143,7 @@ export function ListBox<T extends object>({ className, ...props }: SelectItemsPr
       ref={ref}
       renderEmptyState={() => <ItemNotFound />}
       className={cn(
-        'scrollbar max-h-96 overflow-x-hidden overflow-y-auto outline-none not-data-virtual:p-1',
+        'scrollbar max-h-[inherit] min-h-0 flex-1 overflow-x-hidden overflow-y-auto outline-none not-data-virtual:p-1',
         isOverflowing && 'scroll-mask',
         className,
       )}
