@@ -208,45 +208,37 @@ html.dark {
   @apply scrollbar-thumb-gray-9 scrollbar-thin scrollbar-track-transparent;
 }
 
-@property --scroll-mask-top {
-  syntax: '<length-percentage>';
-  inherits: false;
-  initial-value: 0px;
-}
-
-@property --scroll-mask-bottom {
-  syntax: '<length-percentage>';
-  inherits: false;
-  initial-value: 0px;
-}
-
 @utility scroll-mask {
   @supports (animation-timeline: scroll()) {
     --scroll-mask-width: calc(100% - calc(var(--spacing) * 2.5));
     --scroll-mask-size: calc(var(--spacing) * 8);
     --scroll-mask-range: calc(var(--spacing) * 8);
-    --scroll-mask-top: 0px;
-    --scroll-mask-bottom: var(--scroll-mask-size);
 
     mask:
-      linear-gradient(var(--color-white), transparent) 0 0 / var(--scroll-mask-width) var(--scroll-mask-top) no-repeat,
+      linear-gradient(var(--color-white), transparent) 0 0 / var(--scroll-mask-width) 0 no-repeat,
       linear-gradient(var(--color-white), var(--color-white)) 0 50% / 100% 100% no-repeat,
-      linear-gradient(transparent, var(--color-white)) 0 100% / var(--scroll-mask-width) var(--scroll-mask-bottom) no-repeat;
+      linear-gradient(transparent, var(--color-white)) 0 100% / var(--scroll-mask-width) var(--scroll-mask-size) no-repeat;
 
     @apply animate-[scroll-mask-up_both_linear,scroll-mask-down_both_linear];
     @apply mask-exclude [animation-timeline:scroll(self)] [scroll-timeline:--scroller];
-    @apply [animation-range:0_var(--scroll-mask-range),calc(100%-var(--scroll-mask-range))_100%];
+    @apply [animation-duration:auto] [animation-range:0_var(--scroll-mask-range),calc(100%-var(--scroll-mask-range))_100%];
   }
 }
 
 @keyframes scroll-mask-up {
   100% {
-    --scroll-mask-top: var(--scroll-mask-size);
+    mask-size:
+      var(--scroll-mask-width) var(--scroll-mask-size),
+      100% 100%,
+      var(--scroll-mask-width) var(--scroll-mask-size);
   }
 }
 
 @keyframes scroll-mask-down {
   100% {
-    --scroll-mask-bottom: 0px;
+    mask-size:
+      var(--scroll-mask-width) var(--scroll-mask-size),
+      100% 100%,
+      var(--scroll-mask-width) 0;
   }
 }
