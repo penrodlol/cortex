@@ -36,14 +36,15 @@ export default function SectionFeed({
 
   return (
     <section ref={sectionRef} className="flex scroll-mt-12 flex-col gap-12">
-      <div className="border-gray-6 flex items-center justify-end gap-8 border-y-4 border-double py-4">
+      <div className="border-gray-6 flex flex-col gap-x-8 gap-y-4 border-y-4 border-double py-4 lg:flex-row lg:items-center lg:justify-end">
         <Select.Root
           aria-label="Publisher filter"
           placeholder="Filter by type"
           selectionMode="multiple"
+          className="lg:w-50"
           onChange={(event) => onTypesFilterChange(event as GetFeedRequest['types'])}
         >
-          <Select.Trigger variant="gray-soft" className="w-50" />
+          <Select.Trigger variant="gray-soft" />
           <Select.Content>
             <Select.Items items={types?.map((type) => ({ name: type }))}>
               {(item) => <Select.Item id={item.name}>{item.name}</Select.Item>}
@@ -54,9 +55,10 @@ export default function SectionFeed({
           aria-label="Publisher filter"
           placeholder="Filter by publisher"
           selectionMode="multiple"
+          className="lg:w-60"
           onChange={(event) => onPublisherIdsFilterChange(event as GetFeedRequest['publisherIds'])}
         >
-          <Select.Trigger variant="gray-soft" className="w-60" />
+          <Select.Trigger variant="gray-soft" />
           <Select.Content filterProps={{ filter: publisherContains }}>
             <SearchField aria-label="Search publishers" inputProps={{ placeholder: 'Search publishers' }} />
             <Select.Items itemsVirtualized={publishers}>{(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}</Select.Items>

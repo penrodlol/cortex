@@ -45,7 +45,7 @@ export const selectTriggerVariants = tv({
   extend: getComponentVariants({ hover: true }).variants,
   slots: {
     base: [
-      'flex items-center justify-between gap-2 px-4 select-none',
+      'flex w-full items-center justify-between gap-2 px-4 select-none',
       'focus:outline-none focus-visible:ring motion-safe:transition-colors',
       'disabled:pointer-events-none disabled:opacity-50',
     ],
