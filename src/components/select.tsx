@@ -1,6 +1,6 @@
 import { getComponentVariants } from '#/libs/variants';
 import { ChevronsUpDownIcon } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Autocomplete as AriaAutocomplete } from 'react-aria-components/Autocomplete';
 import { composeRenderProps } from 'react-aria-components/composeRenderProps';
 import * as AriaSelect from 'react-aria-components/Select';
@@ -130,7 +130,7 @@ export function ListBox<T extends object>({ className, ...props }: SelectItemsPr
   const ref = useRef<HTMLDivElement>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!ref.current) return;
     const observer = new ResizeObserver(([entry]) => setIsOverflowing(entry.target.scrollHeight > entry.target.clientHeight));
     observer.observe(ref.current);
