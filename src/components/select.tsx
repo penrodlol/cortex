@@ -141,7 +141,11 @@ export function ListBox<T extends object>({ className, ...props }: SelectItemsPr
     <AriaSelect.ListBox<T>
       ref={ref}
       renderEmptyState={() => <ItemNotFound />}
-      className={cn('scrollbar max-h-96 overflow-auto outline-none not-data-virtual:p-1', isOverflowing && 'scroll-mask', className)}
+      className={cn(
+        'scrollbar max-h-96 overflow-x-hidden overflow-y-auto outline-none not-data-virtual:p-1',
+        isOverflowing && 'scroll-mask',
+        className,
+      )}
       {...props}
     />
   );
