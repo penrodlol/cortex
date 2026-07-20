@@ -14,7 +14,7 @@ export const collapsibleTriggerVariants = tv({ variants: { overlay: { true: 'abs
 
 export const collapsibleContentVariants = tv({
   base: 'pointer-events-none z-20 h-auto overflow-hidden [interpolate-size:allow-keywords] motion-safe:transition-[height]',
-  variants: { faded: { true: 'mask-intersect data-collapsed:mask-[linear-gradient(white_0%,white_90%,transparent)]' } },
+  variants: { faded: { true: 'mask-intersect data-collapsed:mask-b-from-65%' } },
 });
 
 export type CollapsibleContextValue = { open: boolean; setOpen: React.Dispatch<React.SetStateAction<boolean>> };

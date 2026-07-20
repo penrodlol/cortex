@@ -55,17 +55,19 @@ export default function SectionRecentFeed({ entries }: SectionRecentFeedProps) {
               </Text>
               <DateTime value={entry.pubDate} font="serif" variant="gray-soft" size="1" />
             </Card.Header>
-            <Collapsible.Root as={Card.Content}>
-              <Collapsible.Trigger overlay variant="gray-ghost" aria-label="Toggle summary" />
-              <Collapsible.Content faded className="flex flex-col gap-4 data-collapsed:h-38">
-                <Text font="serif" format="balance" size="6">
+            <Card.Content className="pb-0">
+              <Collapsible.Root className="flex flex-col gap-4">
+                <Collapsible.Trigger overlay variant="gray-ghost" aria-label="Toggle summary" />
+                <Text font="serif" format="balance" size="6" className="pointer-events-none relative z-20">
                   {entry.title}
                 </Text>
-                <Text format="balance" variant="gray-soft" size="2" className="leading-6">
-                  {entry.summary}
-                </Text>
-              </Collapsible.Content>
-            </Collapsible.Root>
+                <Collapsible.Content faded className="data-collapsed:h-20">
+                  <Text format="balance" variant="gray-soft" size="2" className="leading-6">
+                    {entry.summary}
+                  </Text>
+                </Collapsible.Content>
+              </Collapsible.Root>
+            </Card.Content>
             <Card.Footer>
               <Link font="serif" variant="gray-soft" size="2" href={entry.sourceUrl}>
                 <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.sourceName.slice(0, 1)} />
