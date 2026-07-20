@@ -55,7 +55,7 @@ export default function SectionRecentFeed({ entries }: SectionRecentFeedProps) {
               </Text>
               <DateTime value={entry.pubDate} font="serif" variant="gray-soft" size="1" />
             </Card.Header>
-            <Card.Content className="pb-0">
+            <Card.Content>
               <Collapsible.Root className="flex flex-col gap-4">
                 <Collapsible.Trigger overlay variant="gray-ghost" aria-label="Toggle summary" />
                 <Text font="serif" format="balance" size="6" className="pointer-events-none relative z-20">
