@@ -37,17 +37,17 @@ export default function SectionFeed({
   const { contains: publisherContains } = useFilter({ sensitivity: 'base' });
 
   return (
-    <section ref={sectionRef} className="flex scroll-mt-12 flex-col gap-12">
-      <div className="border-gray-6 flex flex-col gap-x-8 gap-y-4 border-y-4 border-double py-4 lg:flex-row lg:items-center lg:justify-end">
+    <section ref={sectionRef} className="flex scroll-mt-12 flex-col gap-8">
+      <div className="flex flex-col gap-x-4 gap-y-4 lg:flex-row">
         <Select.Root
           aria-label="Publisher filter"
           placeholder="Filter by type"
           selectionMode="multiple"
-          className="lg:w-50"
+          className="lg:w-96"
           value={typesFilter}
           onChange={(event) => (onTypesFilterChange(event as GetFeedRequest['types']), setTypesFilter(event as GetFeedRequest['types']))}
         >
-          <Select.Trigger variant="gray-soft" />
+          <Select.Trigger variant="gray-ghost-outline" />
           <Select.Content>
             <Select.Items items={types?.map((type) => ({ name: type }))}>
               {(item) => <Select.Item id={item.name}>{item.name}</Select.Item>}
@@ -58,14 +58,14 @@ export default function SectionFeed({
           aria-label="Publisher filter"
           placeholder="Filter by publisher"
           selectionMode="multiple"
-          className="lg:w-60"
+          className="lg:flex-1"
           value={publisherIdsFilter}
           onChange={(event) => (
             onPublisherIdsFilterChange(event as GetFeedRequest['publisherIds']),
             setPublisherIdsFilter(event as GetFeedRequest['publisherIds'])
           )}
         >
-          <Select.Trigger variant="gray-soft" />
+          <Select.Trigger variant="gray-ghost-outline" />
           <Select.Content filterProps={{ filter: publisherContains }}>
             <SearchField aria-label="Search publishers" inputProps={{ placeholder: 'Search publishers' }} />
             <Select.Items itemsVirtualized={publishers}>{(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}</Select.Items>

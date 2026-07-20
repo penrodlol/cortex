@@ -54,7 +54,7 @@ export const selectTriggerVariants = tv({
   defaultVariants: { size: '2' },
   variants: {
     rounded: { true: { base: 'rounded' } },
-    size: { '1': 'h-8 text-sm', '2': 'h-10 text-base', '3': 'h-12 text-lg', '4': 'h-14 text-xl', '5': 'h-16 text-2xl' },
+    size: { '1': 'h-10 text-sm', '2': 'h-12 text-base', '3': 'h-14 text-lg', '4': 'h-16 text-xl', '5': 'h-18 text-2xl' },
   },
 });
 

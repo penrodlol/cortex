@@ -30,11 +30,11 @@ export const searchFieldVariants = tv({
   defaultVariants: { size: '2' },
   variants: {
     size: {
-      '1': { base: 'h-8 text-sm' },
-      '2': { base: 'h-10 text-base' },
-      '3': { base: 'h-12 text-lg' },
-      '4': { base: 'h-14 text-xl' },
-      '5': { base: 'h-16 text-2xl' },
+      '1': { base: 'h-10 text-sm' },
+      '2': { base: 'h-12 text-base' },
+      '3': { base: 'h-14 text-lg' },
+      '4': { base: 'h-16 text-xl' },
+      '5': { base: 'h-18 text-2xl' },
     },
   },
 });
