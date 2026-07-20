@@ -1,34 +1,38 @@
 import db, { article, type ArticlePublisher } from '@/db';
+import puppeteer from '@cloudflare/puppeteer';
 import { gte } from 'drizzle-orm';
 import Parser from 'rss-parser';
-import { z } from 'zod';
 import { createQueueEventBody } from '../../queue';
 import { executeWithRetry } from '../../utils/function';
 import { logError } from '../../utils/logger';
 
 export type DailyArticleScheduledBody = ArticlePublisher & { items: Array<Pick<Parser.Item, 'title' | 'link' | 'pubDate'>> };
 
-export const DAILY_ARTICLE_SCHEDULED_INVALID_USER_AGENT_ERROR = 'Invalid User Agent';
 export const DAILY_ARTICLE_SCHEDULED_NO_ARTICLE_PUBLISHERS_ERROR = 'No Article Publishers Found In Database';
+export const DAILY_ARTICLE_SCHEDULED_RENDER_ERROR = 'Error Rendering Article Publisher RSS Feed';
 export const DAILY_ARTICLE_SCHEDULED_ERROR = 'Daily Article Scheduled Error';
 
 const dailyArticleScheduled = async (env: Env, daysAgo: number) => {
-  const userAgent = z.string().nonempty().safeParse(env.CLOUDFLARE_DAILY_SCHEDULED_USER_AGENT);
-  if (!userAgent.success) throw new Error(`${DAILY_ARTICLE_SCHEDULED_INVALID_USER_AGENT_ERROR}: ${z.prettifyError(userAgent.error)}`);
-
   const articlePublishers = await executeWithRetry(() =>
     db.query.articlePublisher.findMany({ with: { articles: { where: gte(article.pubDate, daysAgo) } } }),
   );
   if (!articlePublishers.success || !articlePublishers.data.length) throw new Error(DAILY_ARTICLE_SCHEDULED_NO_ARTICLE_PUBLISHERS_ERROR);
 
-  const parser = new Parser({ headers: { 'User-Agent': userAgent.data } });
+  const parser = new Parser();
   const successful: Array<DailyArticleScheduledBody> = [];
   const failed: Array<ArticlePublisher & { error: unknown }> = [];
 
+  const browser = await puppeteer.launch(env.BROWSER);
+  const page = await browser.newPage();
+
   for (const articlePublisher of articlePublishers.data) {
     const items = await executeWithRetry(async () => {
-      const result = await parser.parseURL(articlePublisher.rssUrl);
-      return result.items
+      const articlePublisherRssPage = await page.goto(articlePublisher.rssUrl, { waitUntil: 'domcontentloaded' });
+      if (!articlePublisherRssPage || !articlePublisherRssPage.ok()) throw new Error(DAILY_ARTICLE_SCHEDULED_RENDER_ERROR);
+
+      const articlePublisherRssContent = await articlePublisherRssPage.text();
+      const articlePublisherRssContentParsed = await parser.parseString(articlePublisherRssContent);
+      return articlePublisherRssContentParsed.items
         .map((item) => ({ title: item.title, link: item.link, pubDate: item.pubDate }))
         .filter((item) => item.pubDate && new Date(item.pubDate).getTime() >= daysAgo)
         .filter((item) => !articlePublisher.articles.some((article) => article.url === item.link));
@@ -39,6 +43,8 @@ const dailyArticleScheduled = async (env: Env, daysAgo: number) => {
     }
     if (items.data.length) successful.push({ ...articlePublisher, items: items.data });
   }
+
+  await browser.close();
 
   if (successful.length)
     await executeWithRetry(() =>
