@@ -1,13 +1,14 @@
 import db, { article, type Article } from '@/db';
 import type { DailyArticleScheduledBody } from '../../scheduled/src/daily-article.scheduled';
 import { executeWithRetry } from '../../utils/function';
-import { logError } from '../../utils/logger';
+import { logError, logInfo } from '../../utils/logger';
 import { summarize } from '../../utils/prompt';
 import { sleep } from '../../utils/sleep';
 
 export const DAILY_ARTICLE_QUEUE_SCRAPE_REQUEST_ERROR = 'Scrape Request Failed';
 export const DAILY_ARTICLE_QUEUE_NO_CONTENT_ERROR = 'No Scraped Content';
 export const DAILY_ARTICLE_QUEUE_ERROR = 'Daily Article Queue Error';
+export const DAILY_ARTICLE_QUEUE_COMPLETED = 'Daily Article Queue Completed';
 
 const handler = async (env: Env, body: DailyArticleScheduledBody) => {
   const successful: Array<Omit<Article, 'id' | 'createdAt'>> = [];
@@ -22,7 +23,10 @@ const handler = async (env: Env, body: DailyArticleScheduledBody) => {
       const elements: BrowserRunScrapeOptions['elements'] = [{ selector: 'article' }, { selector: 'main' }, { selector: 'body' }];
       const goToOptions: BrowserRunScrapeOptions['gotoOptions'] = { waitUntil: 'networkidle0' };
       const scrapeRequest = await env.BROWSER.quickAction('scrape', { url: String(item.link), gotoOptions: goToOptions, elements });
-      if (!scrapeRequest.ok) throw new Error(DAILY_ARTICLE_QUEUE_SCRAPE_REQUEST_ERROR);
+      if (!scrapeRequest.ok) {
+        const scrapeError = await scrapeRequest.text();
+        throw new Error(DAILY_ARTICLE_QUEUE_SCRAPE_REQUEST_ERROR, { cause: scrapeError });
+      }
 
       const scrapeResponse = (await scrapeRequest.json()) as BrowserRunScrapeSuccessResponse;
       if (!scrapeResponse.success) throw new Error(DAILY_ARTICLE_QUEUE_SCRAPE_REQUEST_ERROR);
@@ -56,8 +60,13 @@ const handler = async (env: Env, body: DailyArticleScheduledBody) => {
     });
   }
 
-  if (successful.length) await executeWithRetry(() => db.insert(article).values(successful).onConflictDoNothing());
+  if (successful.length) {
+    const articles = await executeWithRetry(() => db.insert(article).values(successful).onConflictDoNothing());
+    if (!articles.success) logError(DAILY_ARTICLE_QUEUE_ERROR, articles.error);
+  }
   if (failed.length) logError(DAILY_ARTICLE_QUEUE_ERROR, { failed });
+
+  logInfo(DAILY_ARTICLE_QUEUE_COMPLETED, { successful: successful.length, failed: failed.length });
 };
 
 export default handler;

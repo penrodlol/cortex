@@ -4,13 +4,14 @@ import type { youtube_v3 } from '@googleapis/youtube';
 import { gte } from 'drizzle-orm';
 import { createQueueEventBody } from '../../queue';
 import { executeWithRetry } from '../../utils/function';
-import { logError } from '../../utils/logger';
+import { logError, logInfo } from '../../utils/logger';
 import { sleep } from '../../utils/sleep';
 
 export type DailyYoutubeScheduledBody = YoutubeChannel & { items: Array<youtube_v3.Schema$PlaylistItem> };
 
 export const DAILY_YOUTUBE_SCHEDULED_NO_CHANNELS_FOUND = 'No YouTube Channels Found In Database';
 export const DAILY_YOUTUBE_SCHEDULED_ERROR = 'Daily Youtube Scheduled Error';
+export const DAILY_YOUTUBE_SCHEDULED_COMPLETED = 'Daily Youtube Scheduled Completed';
 
 const dailyYoutubeScheduled = async (env: Env, daysAgo: number) => {
   const youtubeChannels = await executeWithRetry(async () =>
@@ -73,6 +74,11 @@ const dailyYoutubeScheduled = async (env: Env, daysAgo: number) => {
       env.QUEUE.sendBatch(successful.map((body) => ({ body: createQueueEventBody('daily-youtube', body), delaySeconds: 2 }))),
     );
   if (failed.length) logError(DAILY_YOUTUBE_SCHEDULED_ERROR, { failed });
+
+  logInfo(DAILY_YOUTUBE_SCHEDULED_COMPLETED, {
+    successful: successful.reduce((acc, body) => acc + body.items.length, 0),
+    failed: failed.length,
+  });
 };
 
 export default dailyYoutubeScheduled;

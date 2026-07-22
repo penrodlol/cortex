@@ -4,13 +4,14 @@ import { gte } from 'drizzle-orm';
 import Parser from 'rss-parser';
 import { createQueueEventBody } from '../../queue';
 import { executeWithRetry } from '../../utils/function';
-import { logError } from '../../utils/logger';
+import { logError, logInfo } from '../../utils/logger';
 
 export type DailyArticleScheduledBody = ArticlePublisher & { items: Array<Pick<Parser.Item, 'title' | 'link' | 'pubDate'>> };
 
 export const DAILY_ARTICLE_SCHEDULED_NO_ARTICLE_PUBLISHERS_ERROR = 'No Article Publishers Found In Database';
 export const DAILY_ARTICLE_SCHEDULED_RENDER_ERROR = 'Error Rendering Article Publisher RSS Feed';
 export const DAILY_ARTICLE_SCHEDULED_ERROR = 'Daily Article Scheduled Error';
+export const DAILY_ARTICLE_SCHEDULED_COMPLETED = 'Daily Article Scheduled Completed';
 
 const dailyArticleScheduled = async (env: Env, daysAgo: number) => {
   const articlePublishers = await executeWithRetry(() =>
@@ -51,6 +52,11 @@ const dailyArticleScheduled = async (env: Env, daysAgo: number) => {
       env.QUEUE.sendBatch(successful.map((body) => ({ body: createQueueEventBody('daily-article', body), delaySeconds: 2 }))),
     );
   if (failed.length) logError(DAILY_ARTICLE_SCHEDULED_ERROR, { failed });
+
+  logInfo(DAILY_ARTICLE_SCHEDULED_COMPLETED, {
+    successful: successful.reduce((acc, body) => acc + body.items.length, 0),
+    failed: failed.length,
+  });
 };
 
 export default dailyArticleScheduled;

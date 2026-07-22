@@ -4,7 +4,7 @@ import type { TranscriptOrJobId } from '@supadata/js';
 import { z } from 'zod';
 import type { DailyYoutubeScheduledBody } from '../../scheduled/src/daily-youtube.scheduled';
 import { executeWithRetry } from '../../utils/function';
-import { logError } from '../../utils/logger';
+import { logError, logInfo } from '../../utils/logger';
 import { summarize } from '../../utils/prompt';
 import { sleep } from '../../utils/sleep';
 
@@ -15,6 +15,7 @@ export const DAILY_YOUTUBE_QUEUE_COMPLETED_WITH_EMPTY_CONTENT_ERROR = 'Completed
 export const DAILY_YOUTUBE_QUEUE_TRANSCRIPT_POLLING_FAILED_ERROR = 'Transcript Polling Failed';
 export const DAILY_YOUTUBE_QUEUE_MAX_REPING_LIMIT_REACHED_ERROR = 'Max Reping Limit Reached';
 export const DAILY_YOUTUBE_QUEUE_ERROR = 'Daily Youtube Queue Error';
+export const DAILY_YOUTUBE_QUEUE_COMPLETED = 'Daily Youtube Queue Completed';
 
 const handler = async (env: Env, body: DailyYoutubeScheduledBody) => {
   const repingLimit = z.coerce.number().int().nonnegative().safeParse(env.CLOUDFLARE_DAILY_QUEUE_REPING_LIMIT);
@@ -63,8 +64,13 @@ const handler = async (env: Env, body: DailyYoutubeScheduledBody) => {
     });
   }
 
-  if (successful.length) await executeWithRetry(() => db.insert(youtubeVideo).values(successful).onConflictDoNothing());
+  if (successful.length) {
+    const youtubeVideos = await executeWithRetry(() => db.insert(youtubeVideo).values(successful).onConflictDoNothing());
+    if (!youtubeVideos.success) logError(DAILY_YOUTUBE_QUEUE_ERROR, youtubeVideos.error);
+  }
   if (failed.length) logError(DAILY_YOUTUBE_QUEUE_ERROR, { failed });
+
+  logInfo(DAILY_YOUTUBE_QUEUE_COMPLETED, { successful: successful.length, failed: failed.length });
 };
 
 async function getYoutubeTranscriptPolled(request: TranscriptOrJobId, repingLimit: number, reping = 0) {

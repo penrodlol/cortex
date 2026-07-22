@@ -1,3 +1,7 @@
+export function logInfo<T>(message: string, data: T) {
+  console.log({ message, data });
+}
+
 export function logError<T>(message: string, data: T) {
   console.error({ message, data: normalizeError(data) });
 }
