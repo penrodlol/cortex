@@ -15,7 +15,7 @@ export const avatarVariants = tv({
   },
   defaultVariants: { variant: 'gray-ghost', size: '2' },
   variants: {
-    loaded: { true: { alt: 'not-noscript:opacity-0' }, false: { img: 'not-noscript:opacity-0' } },
+    failed: { true: { img: 'opacity-0' }, false: { alt: 'opacity-0' } },
     size: {
       '1': { base: 'size-5', alt: 'text-sm' },
       '2': { base: 'size-7', alt: 'text-base' },
@@ -26,14 +26,23 @@ export const avatarVariants = tv({
   },
 });
 
-export function Avatar({ className, alt, elevation, variant, size, onLoad, ...props }: AvatarProps) {
-  const [loaded, setLoaded] = useState(false);
-  const slots = avatarVariants({ elevation, variant, loaded, size });
+export function Avatar({ className, alt, elevation, variant, size, onError, onLoad, ...props }: AvatarProps) {
+  const [failed, setFailed] = useState(false);
+  const slots = avatarVariants({ elevation, variant, failed, size });
 
   return (
-    <div className={slots.base({ className })}>
+    <div data-failed={failed ? '' : undefined} className={slots.base({ className })}>
       {alt && <span className={slots.alt()}>{alt}</span>}
-      <img loading="lazy" decoding="async" alt={alt} className={slots.img()} onLoad={(e) => (setLoaded(true), onLoad?.(e))} {...props} />
+      <img
+        loading="lazy"
+        decoding="async"
+        alt={alt}
+        ref={(img) => (!!img && img.complete ? setFailed(img.naturalWidth === 0) : undefined)}
+        onError={(e) => (onError?.(e), setFailed(true))}
+        onLoad={(e) => (onLoad?.(e), setFailed(e.currentTarget.naturalWidth === 0))}
+        className={slots.img()}
+        {...props}
+      />
     </div>
   );
 }
