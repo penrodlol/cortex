@@ -1,4 +1,4 @@
-import { getComponentVariants } from '#/libs/variants';
+import { getComponentVariants } from '@/libs/variants';
 import { ChevronsUpDownIcon } from 'lucide-react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Autocomplete as AriaAutocomplete } from 'react-aria-components/Autocomplete';

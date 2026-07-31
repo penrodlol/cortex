@@ -117,7 +117,6 @@ export default function SectionFeed({
             </Accordion.Item>
           ))}
         </Accordion.Root>
-
         <div className="-mx-4 flex items-center justify-end lg:justify-between">
           <Button
             variant="gray-ghost"

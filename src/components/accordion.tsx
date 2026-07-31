@@ -1,7 +1,7 @@
 import { getComponentVariants } from '@/libs/variants';
 import * as AriaDisclosure from 'react-aria-components/Disclosure';
 import * as AriaDisclosureGroup from 'react-aria-components/DisclosureGroup';
-import { tv, type ClassValue, type VariantProps } from 'tailwind-variants';
+import { cn, tv, type ClassValue, type VariantProps } from 'tailwind-variants';
 
 export type AccordionRootProps = React.ComponentProps<typeof AriaDisclosureGroup.DisclosureGroup>;
 export type AccordionItemProps = React.ComponentProps<typeof AriaDisclosure.Disclosure>;
@@ -15,7 +15,7 @@ export type AccordionItemPanelVariants = VariantProps<typeof accordionItemPanelV
 
 export const accordionItemHeaderVariants = tv({
   extend: getComponentVariants({ slot: 'button', hover: true }).variants,
-  slots: { base: '', button: 'w-full py-3 text-left' },
+  slots: { base: '', button: 'w-full py-3 text-left outline-none focus-visible:ring' },
   defaultVariants: { variant: 'gray-ghost' },
   compoundVariants: [
     { variant: ['gray-ghost', 'gray-accent-ghost', 'gray-warn-ghost', 'gray-danger-ghost'], className: { button: 'text-gray-12' } },
@@ -30,7 +30,10 @@ export const accordionItemPanelVariants = tv({
 });
 
 export const Root = AriaDisclosureGroup.DisclosureGroup;
-export const Item = AriaDisclosure.Disclosure;
+
+export function Item({ className, ...props }: AccordionItemProps) {
+  return <AriaDisclosure.Disclosure className={cn('group/accordion-item', className)} {...props} />;
+}
 
 export function ItemHeader({ className, ...props }: AccordionItemHeaderProps) {
   const slots = accordionItemHeaderVariants();

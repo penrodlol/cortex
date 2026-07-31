@@ -18,6 +18,8 @@
   "dependencies": {
     "@googleapis/youtube": "^33.0.0",
     "@supadata/js": "^1.4.0",
+    "@tanstack/react-hotkeys": "^0.10.0",
+    "@tanstack/react-pacer": "^0.22.1",
     "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
     "@tanstack/react-router-ssr-query": "latest",
