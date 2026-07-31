@@ -60,6 +60,7 @@ function SearchContent() {
         iconProps={isFetching ? { source: <Spinner />, className: 'right-16 starting:opacity-0 opacity-100 delay-200' } : undefined}
         clearButtonProps={{ className: 'right-6' }}
         onChange={queryDebouncer.maybeExecute}
+        onKeyDown={(event) => event.key === 'Enter' && event.currentTarget.blur()}
         className="h-20 shrink-0"
       />
       {data?.entries.length === 0 && debouncedQuery.length > 0 && !isFetching && (
