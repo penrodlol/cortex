@@ -56,7 +56,7 @@ function SearchContent() {
         autoFocus
         aria-label="Search"
         variant="gray-ghost"
-        inputProps={{ placeholder: 'Search...', className: 'pr-24 pl-10' }}
+        inputProps={{ placeholder: 'Search...', enterKeyHint: 'search', className: 'pr-24 pl-10' }}
         iconProps={isFetching ? { source: <Spinner />, className: 'right-16 starting:opacity-0 opacity-100 delay-200' } : undefined}
         clearButtonProps={{ className: 'right-6' }}
         onChange={queryDebouncer.maybeExecute}
