@@ -12,10 +12,11 @@ import { useHotkey } from '@tanstack/react-hotkeys';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 import { useQuery } from '@tanstack/react-query';
 import { SearchIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { cn } from 'tailwind-variants';
 
 export default function Search() {
+  const dialogContentRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   useHotkey('Mod+K', () => setIsOpen((open) => !open), { enabled: !isOpen });
@@ -29,6 +30,7 @@ export default function Search() {
         </Kbd>
       </Button>
       <Dialog.Portal
+        ref={dialogContentRef}
         size="3"
         align="top"
         isDismissable
@@ -37,16 +39,16 @@ export default function Search() {
       >
         <Dialog.Content
           variant="gray-surface-outline-gradient"
-          className="not-lg:bdg-none relative flex flex-col overflow-hidden not-lg:h-full not-lg:border-x-0 not-lg:border-t! not-lg:border-b-0"
+          className="relative flex flex-col overflow-hidden not-lg:h-full not-lg:border-x-0 not-lg:border-t-0 not-lg:border-b-0"
         >
-          <SearchContent />
+          <SearchContent onSubmit={() => dialogContentRef?.current?.focus()} />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );
 }
 
-function SearchContent() {
+function SearchContent({ onSubmit }: Pick<React.ComponentProps<typeof SearchField>, 'onSubmit'>) {
   const [debouncedQuery, queryDebouncer] = useDebouncedValue('', { wait: 200 });
   const { data, isFetching } = useQuery(getFeedByQueryQueryOptions({ query: debouncedQuery }));
 
@@ -60,7 +62,7 @@ function SearchContent() {
         iconProps={isFetching ? { source: <Spinner />, className: 'right-16 starting:opacity-0 opacity-100 delay-200' } : undefined}
         clearButtonProps={{ className: 'right-6' }}
         onChange={queryDebouncer.maybeExecute}
-        onKeyDown={(event) => event.key === 'Enter' && event.currentTarget.blur()}
+        onSubmit={onSubmit}
         className="h-20 shrink-0"
       />
       {data?.entries.length === 0 && debouncedQuery.length > 0 && !isFetching && (
