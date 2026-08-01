@@ -1,5 +1,6 @@
 import { Text } from '@/components/typography';
 import Search from './-_search';
+import * as Theme from './-_theme';
 
 export default function Header() {
   return (
@@ -12,7 +13,10 @@ export default function Header() {
           A Developer Artifact Registry
         </Text>
       </div>
-      <Search />
+      <div className="flex gap-1">
+        <Search />
+        <Theme.Trigger />
+      </div>
     </header>
   );
 }
