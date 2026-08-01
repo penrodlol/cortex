@@ -1,5 +1,5 @@
 import { getComponentVariants } from '@/libs/variants';
-import { ChevronsUpDownIcon } from 'lucide-react';
+import { CaretUpDownIcon } from '@phosphor-icons/react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Autocomplete as AriaAutocomplete } from 'react-aria-components/Autocomplete';
 import { composeRenderProps } from 'react-aria-components/composeRenderProps';
@@ -94,7 +94,7 @@ export function Trigger({ className, elevation, variant, rounded, size, valuePro
   return (
     <AriaSelect.Button className={slots.base({ className })} {...props}>
       <AriaSelect.SelectValue className={slots.value()} {...valueProps} />
-      <Icon size="1" variant="gray-soft" source={<ChevronsUpDownIcon />} {...iconProps} />
+      <Icon size="1" variant="gray-soft" source={<CaretUpDownIcon />} {...iconProps} />
     </AriaSelect.Button>
   );
 }

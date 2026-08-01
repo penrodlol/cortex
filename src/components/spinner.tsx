@@ -1,4 +1,4 @@
-import { LoaderIcon } from 'lucide-react';
+import { SpinnerIcon } from '@phosphor-icons/react';
 import { type VariantProps, tv } from 'tailwind-variants';
 import Icon, { iconVariants } from './icon';
 
@@ -13,5 +13,5 @@ export const spinnerVariants = tv({
 });
 
 export default function Spinner<T extends React.ComponentProps<typeof Icon>>({ className, size, variant, ...props }: SpinnerProps<T>) {
-  return <Icon role="status" source={<LoaderIcon />} className={spinnerVariants({ size, variant, className })} {...props} />;
+  return <Icon role="status" source={<SpinnerIcon />} className={spinnerVariants({ size, variant, className })} {...props} />;
 }

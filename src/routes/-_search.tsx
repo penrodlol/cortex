@@ -8,10 +8,10 @@ import SearchField from '@/components/searchfield';
 import Spinner from '@/components/spinner';
 import { DateTime, Text } from '@/components/typography';
 import { getFeedByQueryQueryOptions } from '@/server/fetch/src/feed';
+import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 import { useQuery } from '@tanstack/react-query';
-import { SearchIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { cn } from 'tailwind-variants';
 
@@ -23,7 +23,7 @@ export default function Search() {
 
   return (
     <Dialog.Root isOpen={isOpen} onOpenChange={setIsOpen}>
-      <Button animate={false} variant="gray-ghost-outline" size="1" className="not-lg:w-full" icon={{ source: <SearchIcon /> }}>
+      <Button animate={false} variant="gray-ghost-outline" size="1" className="not-lg:w-full" icon={{ source: <MagnifyingGlassIcon /> }}>
         Search
         <Kbd variant="gray-surface-outline" size="1" className="ml-8 not-lg:hidden">
           ⌘K

@@ -1,5 +1,5 @@
 import { getComponentVariants } from '#/libs/variants';
-import { XIcon } from 'lucide-react';
+import { XIcon } from '@phosphor-icons/react';
 import { Group as AriaGroup } from 'react-aria-components/Group';
 import * as AriaSearchField from 'react-aria-components/SearchField';
 import { tv, type ClassValue, type VariantProps } from 'tailwind-variants';
