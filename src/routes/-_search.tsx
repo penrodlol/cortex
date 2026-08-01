@@ -30,7 +30,6 @@ export default function Search() {
         </Kbd>
       </Button>
       <Dialog.Portal
-        ref={dialogContentRef}
         size="3"
         align="top"
         isDismissable
@@ -38,6 +37,7 @@ export default function Search() {
         modalProps={{ className: 'not-lg:max-h-(--visual-viewport-height) not-lg:h-full not-lg:min-w-full' }}
       >
         <Dialog.Content
+          ref={dialogContentRef}
           variant="gray-surface-outline-gradient"
           className="relative flex flex-col overflow-hidden not-lg:h-full not-lg:border-x-0 not-lg:border-t-0 not-lg:border-b-0"
         >
