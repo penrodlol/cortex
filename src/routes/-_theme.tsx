@@ -62,6 +62,7 @@ export function Trigger(props: ThemeTriggerProps) {
   return (
     <>
       <Button
+        aria-label="Toggle theme"
         variant="gray-ghost-outline"
         size="2-icon"
         icon={{ source: <CircleHalfIcon /> }}
