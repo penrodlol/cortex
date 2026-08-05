@@ -14,6 +14,6 @@ export const separatorVariants = tv({
   },
 });
 
-export function Separator({ className, orientation, ...props }: SeparatorProps) {
+export default function Separator({ className, orientation, ...props }: SeparatorProps) {
   return <AriaSeparator className={separatorVariants({ orientation, className })} {...props} />;
 }

@@ -2,7 +2,7 @@ import { Avatar } from '@/components/avatar';
 import * as Card from '@/components/card';
 import * as Collapsible from '@/components/collapsible';
 import Link from '@/components/link';
-import { Separator } from '@/components/separator';
+import Separator from '@/components/separator';
 import { DateTime, Text } from '@/components/typography';
 import type { GetFeedMetadataResponse } from '@/server/fetch/src/feed';
 import { Fragment } from 'react';

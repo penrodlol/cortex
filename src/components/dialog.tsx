@@ -2,7 +2,7 @@ import * as AriaDialog from 'react-aria-components/Dialog';
 import * as AriaModal from 'react-aria-components/Modal';
 import * as AriaPressable from 'react-aria-components/Pressable';
 import { cn, tv, type ClassValue, type VariantProps } from 'tailwind-variants';
-import { Surface } from './surface';
+import Surface from './surface';
 
 export type DialogRootProps = React.ComponentProps<typeof AriaDialog.DialogTrigger>;
 export type DialogTriggerProps = React.ComponentProps<typeof AriaPressable.Pressable>;

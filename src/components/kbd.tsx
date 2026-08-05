@@ -31,9 +31,10 @@ export const kbdVariants = tv({
 
 export default function Kbd({ children, className, elevation, variant, rounded, size, icon, ...props }: KbdProps) {
   const slots = kbdVariants({ elevation, variant, rounded, size });
+  const { className: iconClassName, ...internalIconProps } = icon ?? {};
   return (
     <kbd className={slots.base({ className })} {...props}>
-      {icon ? <Icon source={icon.source} className={slots.icon()} /> : children}
+      {icon ? <Icon source={icon.source} className={slots.icon({ className: iconClassName })} {...internalIconProps} /> : children}
     </kbd>
   );
 }

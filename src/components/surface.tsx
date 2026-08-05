@@ -65,7 +65,7 @@ export function getSurfaceVariantKeys() {
   );
 }
 
-export function Surface<T extends React.ElementType = 'div'>({
+export default function Surface<T extends React.ElementType = 'div'>({
   as,
   className,
   rounded,

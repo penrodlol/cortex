@@ -8,7 +8,7 @@ import { Text as AriaText } from 'react-aria-components/Text';
 import * as AriaVirtualizer from 'react-aria-components/Virtualizer';
 import { cn, tv, type ClassValue, type VariantProps } from 'tailwind-variants';
 import Icon from './icon';
-import { Surface } from './surface';
+import Surface from './surface';
 import { Text } from './typography';
 
 export type SelectRootProps = React.ComponentProps<typeof AriaSelect.Select>;

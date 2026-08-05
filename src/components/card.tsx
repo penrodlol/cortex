@@ -1,5 +1,5 @@
 import { cn } from 'tailwind-variants';
-import { Surface } from './surface';
+import Surface from './surface';
 
 export type CardRootProps<T extends React.ElementType> = React.ComponentProps<typeof Surface<T>>;
 export type CardHeaderProps = React.ComponentProps<'div'>;
