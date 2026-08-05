@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-@plugin 'tailwindcss-motion';
 @plugin 'tailwindcss-react-aria-components';
 @import '@fontsource-variable/geist';
 @import '@fontsource-variable/geist-mono';
