@@ -1,8 +1,10 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
 import css from '../styles.css?url';
+import Error from './-_error';
 import Footer from './-_footer';
 import Header from './-_header';
+import NotFound from './-_not-found';
 import * as Theme from './-_theme';
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -11,6 +13,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [{ rel: 'stylesheet', href: css }],
   }),
   shellComponent: RootDocument,
+  notFoundComponent: NotFound,
+  errorComponent: Error,
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -23,7 +27,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="from-gray-1 to-gray-2 text-gray-12 mx-auto flex min-h-svh max-w-7xl flex-col gap-16 bg-linear-to-tr bg-fixed px-8">
         <Theme.Provider>
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex flex-1 flex-col">{children}</main>
           <Footer />
           <Scripts />
         </Theme.Provider>
