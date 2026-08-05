@@ -30,7 +30,12 @@ function ShellContent(props: { children: React.ReactNode }) {
   const { locale, direction } = useLocale();
 
   return (
-    <html lang={locale} dir={direction} className="selection:bg-accent-5 scrollbar scrollbar-gutter-stable antialiased">
+    <html
+      lang={locale}
+      dir={direction}
+      suppressHydrationWarning
+      className="selection:bg-accent-5 scrollbar scrollbar-gutter-stable antialiased"
+    >
       <head>
         <Theme.Script />
         <HeadContent />
