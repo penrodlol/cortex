@@ -1,5 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
+import { I18nProvider, useLocale } from 'react-aria-components/I18nProvider';
 import css from '../styles.css?url';
 import Error from './-_error';
 import Footer from './-_footer';
@@ -12,14 +13,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { title: 'Cortex' }],
     links: [{ rel: 'stylesheet', href: css }],
   }),
-  shellComponent: RootDocument,
+  shellComponent: Shell,
   notFoundComponent: NotFound,
   errorComponent: Error,
 });
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function Shell(props: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="selection:bg-accent-5 scrollbar scrollbar-gutter-stable antialiased">
+    <I18nProvider>
+      <ShellContent {...props} />
+    </I18nProvider>
+  );
+}
+
+function ShellContent(props: { children: React.ReactNode }) {
+  const { locale, direction } = useLocale();
+
+  return (
+    <html lang={locale} dir={direction} className="selection:bg-accent-5 scrollbar scrollbar-gutter-stable antialiased">
       <head>
         <Theme.Script />
         <HeadContent />
@@ -27,7 +38,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="from-gray-1 to-gray-2 text-gray-12 mx-auto flex min-h-svh max-w-7xl flex-col gap-16 bg-linear-to-tr bg-fixed px-8">
         <Theme.Provider>
           <Header />
-          <main className="flex flex-1 flex-col">{children}</main>
+          <main className="flex flex-1 flex-col" {...props} />
           <Footer />
           <Scripts />
         </Theme.Provider>
