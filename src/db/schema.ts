@@ -9,6 +9,12 @@ export type YoutubeChannel = typeof youtubeChannel.$inferSelect;
 export type YoutubeChannels = Array<YoutubeChannel>;
 export type YoutubeVideo = typeof youtubeVideo.$inferSelect;
 export type YoutubeVideos = Array<YoutubeVideo>;
+export type GithubRepositoryLanguage = typeof githubRepositoryLanguage.$inferSelect;
+export type GithubRepositoryLanguages = Array<GithubRepositoryLanguage>;
+export type GithubRepositoryPublisher = typeof githubRepositoryPublisher.$inferSelect;
+export type GithubRepositoryPublishers = Array<GithubRepositoryPublisher>;
+export type GithubRepository = typeof githubRepository.$inferSelect;
+export type GithubRepositories = Array<GithubRepository>;
 export type Summary = typeof summary.$inferSelect;
 export type Summaries = Array<Summary>;
 
