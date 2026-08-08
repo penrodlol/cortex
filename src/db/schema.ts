@@ -17,9 +17,10 @@ const primaryKey = text()
   .notNull()
   .$defaultFn(() => crypto.randomUUID());
 const foreignKey = (columnName: string, ...props: Parameters<SQLiteColumnBuilder['references']>) => text(columnName).references(...props);
-const createdAt = integer('created_at')
-  .notNull()
-  .default(sql`(unixepoch('subsec') * 1000)`);
+const timestamp = (columnName: string) =>
+  integer(columnName)
+    .notNull()
+    .default(sql`(unixepoch('subsec') * 1000)`);
 
 // ==================================================================
 //                              TABLES
@@ -31,7 +32,7 @@ export const articlePublisher = sqliteTable('article_publisher', {
   url: text().unique().notNull(),
   rssUrl: text('rss_url').notNull(),
   logoUrl: text('logo_url').notNull(),
-  createdAt,
+  createdAt: timestamp('created_at'),
 });
 
 export const article = sqliteTable('article', {
@@ -40,7 +41,7 @@ export const article = sqliteTable('article', {
   url: text().unique().notNull(),
   summary: text().notNull(),
   pubDate: integer('pub_date').notNull(),
-  createdAt,
+  createdAt: timestamp('created_at'),
   articlePublisherId: foreignKey('article_publisher_id', () => articlePublisher.id, { onDelete: 'cascade' }).notNull(),
 });
 
@@ -49,7 +50,7 @@ export const youtubeChannel = sqliteTable('youtube_channel', {
   handle: text().unique().notNull(),
   name: text().unique().notNull(),
   logoUrl: text('logo_url').notNull(),
-  createdAt,
+  createdAt: timestamp('created_at'),
 });
 
 export const youtubeVideo = sqliteTable('youtube_video', {
@@ -59,8 +60,41 @@ export const youtubeVideo = sqliteTable('youtube_video', {
   thumbnailUrl: text('thumbnail_url').notNull(),
   summary: text().notNull(),
   pubDate: integer('pub_date').notNull(),
-  createdAt,
+  createdAt: timestamp('created_at'),
   youtubeChannelId: foreignKey('youtube_channel_id', () => youtubeChannel.id, { onDelete: 'cascade' }).notNull(),
+});
+
+export const githubRepositoryLanguage = sqliteTable('github_repository_language', {
+  id: primaryKey,
+  name: text().unique().notNull(),
+  watchTrending: integer('watch_trending').notNull().default(0),
+  createdAt: timestamp('created_at'),
+});
+
+export const githubRepositoryPublisher = sqliteTable('github_repository_publisher', {
+  id: primaryKey,
+  name: text().unique().notNull(),
+  url: text().unique().notNull(),
+  logoUrl: text('logo_url').notNull(),
+  createdAt: timestamp('created_at'),
+});
+
+export const githubRepository = sqliteTable('github_repository', {
+  id: primaryKey,
+  title: text().notNull(),
+  summary: text().notNull(),
+  url: text().unique().notNull(),
+  stars: integer().notNull(),
+  forks: integer().notNull(),
+  watchers: integer().notNull(),
+  updatedAt: timestamp('updated_at'),
+  createdAt: timestamp('created_at'),
+  githubRepositoryLanguageId: foreignKey('github_repository_language_id', () => githubRepositoryLanguage.id, {
+    onDelete: 'cascade',
+  }).notNull(),
+  githubRepositoryPublisherId: foreignKey('github_repository_publisher_id', () => githubRepositoryPublisher.id, {
+    onDelete: 'cascade',
+  }).notNull(),
 });
 
 export const summary = sqliteTable('summary', {
@@ -70,7 +104,7 @@ export const summary = sqliteTable('summary', {
     .notNull(),
   label: text().unique().notNull(),
   value: integer().notNull(),
-  createdAt,
+  createdAt: timestamp('created_at'),
 });
 
 // ==================================================================
@@ -87,4 +121,23 @@ export const youtubeChannelRelations = relations(youtubeChannel, ({ many }) => (
 
 export const youtubeVideoRelations = relations(youtubeVideo, ({ one }) => ({
   youtubeChannel: one(youtubeChannel, { fields: [youtubeVideo.youtubeChannelId], references: [youtubeChannel.id] }),
+}));
+
+export const githubRepositoryLanguageRelations = relations(githubRepositoryLanguage, ({ many }) => ({
+  repositories: many(githubRepository),
+}));
+
+export const githubRepositoryPublisherRelations = relations(githubRepositoryPublisher, ({ many }) => ({
+  repositories: many(githubRepository),
+}));
+
+export const githubRepositoryRelations = relations(githubRepository, ({ one }) => ({
+  githubRepositoryLanguage: one(githubRepositoryLanguage, {
+    fields: [githubRepository.githubRepositoryLanguageId],
+    references: [githubRepositoryLanguage.id],
+  }),
+  githubRepositoryPublisher: one(githubRepositoryPublisher, {
+    fields: [githubRepository.githubRepositoryPublisherId],
+    references: [githubRepositoryPublisher.id],
+  }),
 }));
