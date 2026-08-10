@@ -1,0 +1,1 @@
+DROP INDEX `github_repository_publisher_name_unique`;
