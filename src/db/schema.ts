@@ -79,7 +79,7 @@ export const githubRepositoryLanguage = sqliteTable('github_repository_language'
 
 export const githubRepositoryPublisher = sqliteTable('github_repository_publisher', {
   id: primaryKey,
-  name: text().unique().notNull(),
+  name: text().notNull(),
   url: text().unique().notNull(),
   logoUrl: text('logo_url').notNull(),
   createdAt: timestamp('created_at'),
