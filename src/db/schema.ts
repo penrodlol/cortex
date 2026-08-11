@@ -105,7 +105,17 @@ export const githubRepository = sqliteTable('github_repository', {
 
 export const summary = sqliteTable('summary', {
   id: primaryKey,
-  name: text({ enum: ['total_article_publishers', 'total_articles', 'total_youtube_channels', 'total_youtube_videos'] })
+  name: text({
+    enum: [
+      'total_article_publishers',
+      'total_articles',
+      'total_youtube_channels',
+      'total_youtube_videos',
+      'total_github_repository_languages',
+      'total_github_repository_publishers',
+      'total_github_repositories',
+    ],
+  })
     .unique()
     .notNull(),
   label: text().unique().notNull(),
