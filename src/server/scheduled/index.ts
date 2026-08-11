@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { logError } from '../utils/logger';
 import dailyArticleScheduled from './src/daily-article.scheduled';
+import dailyGithubScheduled from './src/daily-github.scheduled';
 import dailyYoutubeScheduled from './src/daily-youtube.scheduled';
 
 export const SCHEDULED_HANDLER_INVALID_PUBLISHED_DAYS_LIMIT_ERROR = 'Invalid Published Days Limit';
@@ -22,7 +23,7 @@ const handler: ExportedHandler<Env>['scheduled'] = async (event, env) => {
 
     switch (event.cron) {
       case '0 5 * * *': {
-        await Promise.all([dailyArticleScheduled(env, daysAgo.data), dailyYoutubeScheduled(env, daysAgo.data)]);
+        await Promise.all([dailyArticleScheduled(env, daysAgo.data), dailyYoutubeScheduled(env, daysAgo.data), dailyGithubScheduled(env)]);
         break;
       }
       default:

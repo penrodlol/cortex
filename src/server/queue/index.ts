@@ -1,10 +1,12 @@
 import type { DailyArticleScheduledBody } from '../scheduled/src/daily-article.scheduled';
+import type { DailyGithubScheduledBody } from '../scheduled/src/daily-github.scheduled';
 import type { DailyYoutubeScheduledBody } from '../scheduled/src/daily-youtube.scheduled';
 import { logError } from '../utils/logger';
 import dailyArticleQueue from './src/daily-article.queue';
+import dailyGithubQueue from './src/daily-github.queue';
 import dailyYoutubeQueue from './src/daily-youtube.queue';
 
-export type QueueEventType = 'daily-article' | 'daily-youtube';
+export type QueueEventType = 'daily-article' | 'daily-youtube' | 'daily-github';
 export const createQueueEventBody = <D extends unknown, T extends QueueEventType>(type: T, data: D) => ({ type, data });
 
 export const QUEUE_HANDLER_NO_HANDLER_ERROR = 'No Handler for Queue Event';
@@ -19,6 +21,8 @@ const handler: ExportedHandler<Env, ReturnType<typeof createQueueEventBody>>['qu
             return dailyArticleQueue(env, message.body.data as DailyArticleScheduledBody);
           case 'daily-youtube':
             return dailyYoutubeQueue(env, message.body.data as DailyYoutubeScheduledBody);
+          case 'daily-github':
+            return dailyGithubQueue(message.body.data as DailyGithubScheduledBody);
           default:
             throw new Error(`${QUEUE_HANDLER_NO_HANDLER_ERROR}: ${message.body.type}`);
         }
