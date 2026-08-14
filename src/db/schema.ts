@@ -15,6 +15,10 @@ export type GithubRepositoryPublisher = typeof githubRepositoryPublisher.$inferS
 export type GithubRepositoryPublishers = Array<GithubRepositoryPublisher>;
 export type GithubRepository = typeof githubRepository.$inferSelect;
 export type GithubRepositories = Array<GithubRepository>;
+export type XUser = typeof xUser.$inferSelect;
+export type XUsers = Array<XUser>;
+export type XPost = typeof xPost.$inferSelect;
+export type XPosts = Array<XPost>;
 export type Summary = typeof summary.$inferSelect;
 export type Summaries = Array<Summary>;
 
@@ -103,6 +107,29 @@ export const githubRepository = sqliteTable('github_repository', {
   }).notNull(),
 });
 
+export const xUser = sqliteTable('x_user', {
+  id: primaryKey,
+  xId: text('x_id').unique().notNull(),
+  username: text().notNull(),
+  name: text().notNull(),
+  logoUrl: text('logo_url').notNull(),
+  createdAt: timestamp('created_at'),
+});
+
+export const xPost = sqliteTable('x_post', {
+  id: primaryKey,
+  xId: text('x_id').unique().notNull(),
+  text: text().notNull(),
+  likes: integer().notNull().default(0),
+  reposts: integer().notNull().default(0),
+  replies: integer().notNull().default(0),
+  impressions: integer().notNull().default(0),
+  pubDate: integer('pub_date').notNull(),
+  createdAt: timestamp('created_at'),
+  xUserId: foreignKey('x_user_id', () => xUser.id, { onDelete: 'cascade' }).notNull(),
+  xRepostedUserId: foreignKey('x_reposted_user_id', () => xUser.id, { onDelete: 'cascade' }),
+});
+
 export const summary = sqliteTable('summary', {
   id: primaryKey,
   name: text({
@@ -114,6 +141,8 @@ export const summary = sqliteTable('summary', {
       'total_github_repository_languages',
       'total_github_repository_publishers',
       'total_github_repositories',
+      'total_x_users',
+      'total_x_posts',
     ],
   })
     .unique()
@@ -156,4 +185,14 @@ export const githubRepositoryRelations = relations(githubRepository, ({ one }) =
     fields: [githubRepository.githubRepositoryPublisherId],
     references: [githubRepositoryPublisher.id],
   }),
+}));
+
+export const xUserRelations = relations(xUser, ({ many }) => ({
+  posts: many(xPost),
+  repostedPosts: many(xPost, { relationName: 'xRepostedUser' }),
+}));
+
+export const xPostRelations = relations(xPost, ({ one }) => ({
+  user: one(xUser, { fields: [xPost.xUserId], references: [xUser.id] }),
+  repostedUser: one(xUser, { fields: [xPost.xRepostedUserId], references: [xUser.id] }),
 }));
