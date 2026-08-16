@@ -94,9 +94,6 @@ export const githubRepository = sqliteTable('github_repository', {
   title: text().notNull(),
   summary: text().notNull(),
   url: text().unique().notNull(),
-  stars: integer().notNull(),
-  forks: integer().notNull(),
-  watchers: integer().notNull(),
   updatedAt: timestamp('updated_at'),
   createdAt: timestamp('created_at'),
   githubRepositoryLanguageId: foreignKey('github_repository_language_id', () => githubRepositoryLanguage.id, {
