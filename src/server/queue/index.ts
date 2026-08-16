@@ -22,7 +22,7 @@ const handler: ExportedHandler<Env, ReturnType<typeof createQueueEventBody>>['qu
           case 'daily-youtube':
             return dailyYoutubeQueue(env, message.body.data as DailyYoutubeScheduledBody);
           case 'daily-github':
-            return dailyGithubQueue(message.body.data as DailyGithubScheduledBody);
+            return dailyGithubQueue(env, message.body.data as DailyGithubScheduledBody);
           default:
             throw new Error(`${QUEUE_HANDLER_NO_HANDLER_ERROR}: ${message.body.type}`);
         }
