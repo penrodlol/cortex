@@ -27,6 +27,7 @@
     "@tanstack/react-router-ssr-query": "latest",
     "@tanstack/react-start": "latest",
     "@tanstack/router-plugin": "^1.132.0",
+    "@xdevplatform/xdk": "^0.6.6",
     "drizzle-orm": "^0.45.2",
     "react": "^19.2.0",
     "react-aria": "^3.48.0",

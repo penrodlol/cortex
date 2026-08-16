@@ -41,6 +41,9 @@ importers:
       '@tanstack/router-plugin':
         specifier: ^1.132.0
         version: 1.168.18(@tanstack/react-router@1.170.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(vite@8.0.16(@types/node@22.19.20)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4))
+      '@xdevplatform/xdk':
+        specifier: ^0.6.6
+        version: 0.6.6(node-fetch@3.3.2)
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@4.20260609.1)
@@ -1632,6 +1635,15 @@ packages:
       '@rolldown/plugin-babel':
         optional: true
       babel-plugin-react-compiler:
+        optional: true
+
+  '@xdevplatform/xdk@0.6.6':
+    resolution: {integrity: sha512-ced4iHSz08eQe1L0N3UWVvJyfGnmGU0CRjecoXpr27dVIyQvc637Pxm3cdP4G85PwhHn5IGVJ1DJF2YD9zWfAg==}
+    engines: {node: '>=16.14'}
+    peerDependencies:
+      node-fetch: ^3.3.0
+    peerDependenciesMeta:
+      node-fetch:
         optional: true
 
   agent-base@7.1.4:
@@ -4139,6 +4151,10 @@ snapshots:
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.0.16(@types/node@22.19.20)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)
+
+  '@xdevplatform/xdk@0.6.6(node-fetch@3.3.2)':
+    optionalDependencies:
+      node-fetch: 3.3.2
 
   agent-base@7.1.4: {}
 
