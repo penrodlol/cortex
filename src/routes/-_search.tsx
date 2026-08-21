@@ -1,19 +1,27 @@
-import * as Accordion from '@/components/accordion';
 import { Avatar } from '@/components/avatar';
 import Button from '@/components/button';
+import * as Card from '@/components/card';
+import * as Collapsible from '@/components/collapsible';
 import * as Dialog from '@/components/dialog';
 import Kbd from '@/components/kbd';
 import Link from '@/components/link';
 import SearchField from '@/components/searchfield';
 import Spinner from '@/components/spinner';
+import Surface from '@/components/surface';
 import { DateTime, Text } from '@/components/typography';
-import { getFeedByQueryQueryOptions } from '@/server/fetch/src/feed';
+import { getFeedByQueryQueryOptions, type GetFeedByQueryResponse } from '@/server/fetch/src/feed';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 import { useQuery } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import { cn } from 'tailwind-variants';
+
+export type SearchContentEntryProps = {
+  entry: GetFeedByQueryResponse['entries'][number];
+  open: boolean;
+  onOpenChange: (url: GetFeedByQueryResponse['entries'][number]['url'], open: boolean) => void;
+};
 
 export default function Search() {
   const dialogContentRef = useRef<HTMLDivElement>(null);
@@ -51,6 +59,12 @@ export default function Search() {
 function SearchContent({ onSubmit }: Pick<React.ComponentProps<typeof SearchField>, 'onSubmit'>) {
   const [debouncedQuery, queryDebouncer] = useDebouncedValue('', { wait: 200 });
   const { data, isFetching } = useQuery(getFeedByQueryQueryOptions({ query: debouncedQuery }));
+  const [openFeedItem, setOpenFeedItem] = useState<NonNullable<typeof data>['entries'][number]['url']>();
+
+  const handleOpenFeedItemChange = useCallback(
+    (url: NonNullable<typeof data>['entries'][number]['url'], open: boolean) => setOpenFeedItem(open ? url : undefined),
+    [],
+  );
 
   return (
     <>
@@ -66,17 +80,17 @@ function SearchContent({ onSubmit }: Pick<React.ComponentProps<typeof SearchFiel
         className="h-20 shrink-0"
       />
       {data?.entries.length === 0 && debouncedQuery.length > 0 && !isFetching && (
-        <div className="flex h-full flex-col items-center justify-center lg:pb-12">
+        <Surface className="flex h-full flex-col items-center justify-center lg:pb-12">
           <Text font="serif" size="6" weight="6">
             No Results Found
           </Text>
           <Text variant="gray-soft" size="2">
             Try searching for another keyword or phrase
           </Text>
-        </div>
+        </Surface>
       )}
       {debouncedQuery.length > 0 && (
-        <Accordion.Root
+        <Surface
           className={cn(
             'scrollbar scroll-mask scrollbar-gutter-both overflow-auto',
             '**:[mark]:text-gray-12 **:[mark]:bg-transparent **:[mark]:px-1 **:[mark]:font-bold',
@@ -84,47 +98,47 @@ function SearchContent({ onSubmit }: Pick<React.ComponentProps<typeof SearchFiel
           )}
         >
           {data?.entries.map((entry) => (
-            <Accordion.Item key={entry.url} className="last:pb-2">
-              <Accordion.ItemHeader>
-                <div className="flex flex-col gap-2 px-8 py-6 group-first/accordion-item:pt-0">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex w-full flex-wrap items-center gap-2">
-                      <Text font="serif" variant="gray-soft" size="1">
-                        {entry.type.toUpperCase()}
-                      </Text>
-                      <Text variant="gray-soft" size="1">
-                        //
-                      </Text>
-                      <DateTime value={entry.pubDate} font="serif" variant="gray-soft" size="1" />
-                      <Link font="serif" variant="gray-soft" size="1" href={entry.sourceUrl} className="ml-auto flex items-center gap-2">
-                        {entry.sourceName}
-                        <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.sourceName.slice(0, 1)} />
-                      </Link>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    <Text size="5" dangerouslySetInnerHTML={{ __html: entry.title }} />
-                    <Text
-                      variant="gray-soft"
-                      size="2"
-                      dangerouslySetInnerHTML={{ __html: entry.summarySnippet }}
-                      className="group-expanded/accordion-item:opacity-40 mask-b-from-80% mask-intersect leading-6 motion-safe:transition-opacity"
-                    />
-                  </div>
-                </div>
-              </Accordion.ItemHeader>
-              <Accordion.ItemPanel>
-                <div className="flex flex-col gap-4 px-8">
-                  <Text format="balance" variant="gray-soft" dangerouslySetInnerHTML={{ __html: entry.summary }} className="leading-6" />
-                  <Link font="serif" variant="gray-soft" href={entry.url}>
-                    {entry.urlLabel}
-                  </Link>
-                </div>
-              </Accordion.ItemPanel>
-            </Accordion.Item>
+            <SearchContentEntry key={entry.url} entry={entry} open={openFeedItem === entry.url} onOpenChange={handleOpenFeedItemChange} />
           ))}
-        </Accordion.Root>
+        </Surface>
       )}
     </>
   );
 }
+
+const SearchContentEntry = memo(({ entry, open, onOpenChange }: SearchContentEntryProps) => (
+  <Collapsible.Root
+    key={entry.url}
+    open={open}
+    onOpenChange={(open) => onOpenChange(entry.url, open)}
+    className="border-gray-6 border-b px-8 py-10 first:pt-0 last:border-b-0 [&_a]:relative [&_a]:z-20"
+  >
+    <Collapsible.Trigger overlay aria-label={`Toggle ${entry.title}`} className="hover:bg-transparent" />
+    <Card.Root>
+      <Card.Header>
+        <Text font="serif" variant="gray-soft" size="1">
+          {entry.type}
+        </Text>
+        <Text variant="gray-soft" size="1">
+          //
+        </Text>
+        <DateTime value={entry.pubDate} font="serif" variant="gray-soft" size="1" />
+        <Link font="serif" variant="gray-soft" size="1" href={entry.sourceUrl} className="ml-auto flex items-center gap-2">
+          {entry.sourceName}
+          <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.sourceName.slice(0, 1)} />
+        </Link>
+      </Card.Header>
+      <Card.Content>
+        <Text font="serif" format="balance" size="5" dangerouslySetInnerHTML={{ __html: entry.title.toUpperCase() }} />
+        <Collapsible.Content faded className="data-collapsed:h-20">
+          <Text format="balance" variant="gray-soft" size="2" dangerouslySetInnerHTML={{ __html: entry.summary }} className="leading-6" />
+        </Collapsible.Content>
+      </Card.Content>
+      <Card.Footer>
+        <Link font="serif" variant="gray-soft" href={entry.url}>
+          {entry.urlLabel}
+        </Link>
+      </Card.Footer>
+    </Card.Root>
+  </Collapsible.Root>
+));

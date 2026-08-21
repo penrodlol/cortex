@@ -2,7 +2,11 @@ import { createContext, use, useState } from 'react';
 import { cn, tv, type VariantProps } from 'tailwind-variants';
 import Button from './button';
 
-export type CollapsibleRootProps<T extends React.ElementType> = Omit<React.ComponentProps<T>, 'as'> & { as?: T };
+export type CollapsibleRootProps<T extends React.ElementType> = Omit<React.ComponentProps<T>, 'as'> & {
+  as?: T;
+  open?: CollapsibleContextValue['open'];
+  onOpenChange?: (open: CollapsibleContextValue['open']) => void;
+};
 export type CollapsibleTriggerProps = React.ComponentProps<typeof Button> & CollapsibleTriggerVariants;
 export type CollapsibleContentProps<T extends React.ElementType> = Omit<React.ComponentProps<T>, 'as'> &
   CollapsibleContentVariants & { as?: T };
@@ -25,9 +29,25 @@ export function useCollapsible() {
   return context;
 }
 
-export function Root<T extends React.ElementType = 'div'>({ as, className, elevation, variant, ...props }: CollapsibleRootProps<T>) {
-  const [open, setOpen] = useState(false);
+export function Root<T extends React.ElementType = 'div'>({
+  as,
+  className,
+  elevation,
+  variant,
+  open: externalOpen,
+  onOpenChange,
+  ...props
+}: CollapsibleRootProps<T>) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen ?? internalOpen;
   const Component = as ?? 'div';
+
+  const setOpen: CollapsibleContextValue['setOpen'] = (value) => {
+    const nextValue = typeof value === 'function' ? (value as (prev: boolean) => boolean)(open) : value;
+    if (externalOpen == null) setInternalOpen(nextValue);
+    onOpenChange?.(nextValue);
+  };
+
   return (
     <CollapsibleContext value={{ open, setOpen }}>
       <Component

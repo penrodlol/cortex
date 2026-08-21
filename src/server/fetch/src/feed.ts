@@ -1,7 +1,7 @@
 import db, { article, articlePublisher, articleVirtual, youtubeChannel, youtubeVideo, youtubeVideoVirtual } from '@/db';
 import { queryOptions } from '@tanstack/react-query';
 import { createServerFn } from '@tanstack/react-start';
-import { and, asc, desc, eq, inArray, notInArray, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
 import { unionAll } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
 import { logError } from '../../utils/logger';
@@ -19,14 +19,12 @@ export const GET_FEED_ERROR = 'Error Retrieving Feed';
 export const GET_FEED_BY_QUERY_ERROR = 'Error Retrieving Feed By Query';
 
 export const FEED_CACHE_TIME = 5 * 60 * 1000;
-export const GET_FEED_METADATA_RECENT_SIZE = 3;
-export const GET_FEED_PAGE_SIZE = 15;
+export const GET_FEED_PAGE_SIZE = 20;
 export const GET_FEED_DEFAULT_REQUEST: GetFeedRequest = { page: 1 };
 export const GET_FEED_BY_QUERY_MAX_LENGTH = 100;
 
 export const getFeedRequestSchema = z.object({
   page: z.number().positive().optional().default(1),
-  excludedUrls: z.array(z.string()).optional(),
   types: z.array(z.enum(['Article', 'YouTube Video'] satisfies Array<FeedItemType>)).optional(),
   publisherIds: z.array(z.string()).optional(),
 });
@@ -67,22 +65,15 @@ export const getFeedMetadata = createServerFn().handler(async () => {
   try {
     const types = ['Article', 'YouTube Video'] satisfies Array<FeedItemType>;
 
-    const articlePublishers = await db
+    const articlePublishers = db
       .select({ id: articlePublisher.id, type: sql<FeedItemType>`'Article'`.as('type'), name: articlePublisher.name })
       .from(articlePublisher);
-    const youtubeChannels = await db
+    const youtubeChannels = db
       .select({ id: youtubeChannel.id, type: sql<FeedItemType>`'YouTube Video'`.as('type'), name: youtubeChannel.name })
       .from(youtubeChannel);
-    const publishers = [...articlePublishers, ...youtubeChannels].sort((a, b) => a.name.localeCompare(b.name));
+    const publishers = await unionAll(articlePublishers, youtubeChannels).orderBy(asc(sql`name collate nocase`));
 
-    const feedEntries = getFeedEntries();
-    const recentFeedEntries = await db
-      .select()
-      .from(feedEntries)
-      .orderBy(desc(feedEntries.pubDate), asc(feedEntries.title))
-      .limit(GET_FEED_METADATA_RECENT_SIZE);
-
-    return { types, publishers, recentFeedEntries };
+    return { types, publishers };
   } catch (error) {
     logError(GET_FEED_METADATA_ERROR, error);
     throw new Error(GET_FEED_METADATA_ERROR);
@@ -93,18 +84,30 @@ export const getFeed = createServerFn({ method: 'POST' })
   .validator(getFeedRequestSchema)
   .handler(async ({ data }) => {
     try {
-      const feedEntries = getFeedEntries();
+      const feedEntriesFields = getFeedEntriesFields();
+
+      const articles = db
+        .select(feedEntriesFields.article)
+        .from(article)
+        .innerJoin(articlePublisher, eq(article.articlePublisherId, articlePublisher.id));
+
+      const youtubeVideos = db
+        .select(feedEntriesFields.youtubeVideo)
+        .from(youtubeVideo)
+        .innerJoin(youtubeChannel, eq(youtubeVideo.youtubeChannelId, youtubeChannel.id));
+
+      const articlesAndYoutubeVideos = unionAll(articles, youtubeVideos).as('feedEntries');
+
       const entries = await db
         .select()
-        .from(feedEntries)
+        .from(articlesAndYoutubeVideos)
         .where(
           and(
-            data.excludedUrls?.length ? notInArray(feedEntries.url, data.excludedUrls) : undefined,
-            data.types?.length ? inArray(feedEntries.type, data.types) : undefined,
-            data.publisherIds?.length ? inArray(feedEntries.sourceId, data.publisherIds) : undefined,
+            data.types?.length ? inArray(articlesAndYoutubeVideos.type, data.types) : undefined,
+            data.publisherIds?.length ? inArray(articlesAndYoutubeVideos.sourceId, data.publisherIds) : undefined,
           ),
         )
-        .orderBy(desc(feedEntries.pubDate), asc(feedEntries.title))
+        .orderBy(desc(articlesAndYoutubeVideos.pubDate), asc(articlesAndYoutubeVideos.title))
         .limit(GET_FEED_PAGE_SIZE + 1)
         .offset(data.page === 1 ? 0 : (data.page - 1) * GET_FEED_PAGE_SIZE);
 
@@ -173,7 +176,6 @@ function getFeedEntriesFields() {
       pubDate: article.pubDate,
       url: article.url,
       urlLabel: sql<FeedItemTypeUrlLabel>`'Read Article'`.as('url_label'),
-      thumbnailUrl: sql`null`.mapWith(String).as('thumbnail_url'),
       sourceId: articlePublisher.id,
       sourceName: articlePublisher.name,
       sourceUrl: sql`${articlePublisher.url}`.mapWith(String).as('source_url'),
@@ -186,27 +188,10 @@ function getFeedEntriesFields() {
       pubDate: youtubeVideo.pubDate,
       url: sql`'https://www.youtube.com/watch?v=' || ${youtubeVideo.videoId}`.mapWith(String).as('url'),
       urlLabel: sql<FeedItemTypeUrlLabel>`'Watch Video'`.as('url_label'),
-      thumbnailUrl: youtubeVideo.thumbnailUrl,
       sourceId: youtubeChannel.id,
       sourceName: youtubeChannel.name,
       sourceUrl: sql`'https://www.youtube.com/@' || ${youtubeChannel.handle}`.mapWith(String).as('source_url'),
       sourceLogoUrl: youtubeChannel.logoUrl,
     },
   };
-}
-
-function getFeedEntries() {
-  const feedEntriesFields = getFeedEntriesFields();
-
-  const articles = db
-    .select(feedEntriesFields.article)
-    .from(article)
-    .innerJoin(articlePublisher, eq(article.articlePublisherId, articlePublisher.id));
-
-  const youtubeVideos = db
-    .select(feedEntriesFields.youtubeVideo)
-    .from(youtubeVideo)
-    .innerJoin(youtubeChannel, eq(youtubeVideo.youtubeChannelId, youtubeChannel.id));
-
-  return unionAll(articles, youtubeVideos).as('feedEntries');
 }

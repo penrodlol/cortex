@@ -99,15 +99,18 @@ export function Trigger({ className, elevation, variant, rounded, size, valuePro
   );
 }
 
-export function Popover({ className, ...props }: SelectPopoverProps) {
+export function Popover({ className, crossOffset, ...props }: SelectPopoverProps) {
   return (
     <Surface
       as={AriaSelect.Popover}
       opaque
       variant="gray-surface-outline"
       maxHeight={384}
+      crossOffset={crossOffset}
+      style={crossOffset ? ({ '--cross-offset': `${crossOffset}px` } as React.CSSProperties) : undefined}
       className={cn(
-        'flex w-(--trigger-width) flex-col overflow-hidden outline-none select-none',
+        'flex flex-col overflow-hidden outline-none select-none',
+        'w-[calc(var(--trigger-width)-var(--cross-offset)*2)]',
         'exiting:duration-0 entering:opacity-0 origin-(--trigger-anchor-point) motion-safe:transition-all',
         'placement-bottom:entering:-translate-y-1 placement-top:entering:translate-y-1',
         'placement-left:entering:translate-x-1 placement-right:entering:-translate-x-1',

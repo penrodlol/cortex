@@ -5,6 +5,7 @@ import css from '../styles.css?url';
 import Error from './-_error';
 import Footer from './-_footer';
 import Header from './-_header';
+import * as Layout from './-_layout';
 import NotFound from './-_not-found';
 import * as Theme from './-_theme';
 
@@ -40,14 +41,14 @@ function ShellContent(props: { children: React.ReactNode }) {
         <Theme.Script />
         <HeadContent />
       </head>
-      <body className="from-gray-1 to-gray-2 text-gray-12 mx-auto flex min-h-svh max-w-7xl flex-col gap-16 bg-linear-to-tr bg-fixed px-8">
+      <Layout.Root as="body" className="from-gray-1 to-gray-2 text-gray-12 relative flex min-h-svh flex-col bg-linear-to-tr bg-fixed">
         <Theme.Provider>
           <Header />
           <main className="flex flex-1 flex-col" {...props} />
           <Footer />
           <Scripts />
         </Theme.Provider>
-      </body>
+      </Layout.Root>
     </html>
   );
 }

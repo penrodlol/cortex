@@ -23,7 +23,10 @@ export const buttonVariants = tv({
   defaultVariants: { rounded: false, animate: true, size: '2', variant: 'accent-solid' },
   variants: {
     rounded: { true: 'rounded' },
-    animate: { true: 'motion-safe:pressed:scale-[0.97] motion-safe:transition-[background-color,color,scale]' },
+    animate: {
+      true: 'motion-safe:pressed:scale-[0.97] motion-safe:transition-[background-color,color,scale]',
+      false: 'motion-safe:transition-[background-color,color]',
+    },
     size: {
       '1': { base: 'h-8 px-3 text-sm', icon: 'size-3 opacity-80' },
       '2': { base: 'h-10 px-4 text-base', icon: 'size-4 opacity-80' },
