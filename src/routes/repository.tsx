@@ -1,17 +1,17 @@
-import { Avatar } from '@/components/avatar';
-import Button from '@/components/button';
-import * as Card from '@/components/card';
-import * as Collapsible from '@/components/collapsible';
-import Link from '@/components/link';
-import SearchField from '@/components/searchfield';
-import * as Select from '@/components/select';
-import { DateTime, Text } from '@/components/typography';
+import { Avatar } from '#/components/avatar';
+import Button from '#/components/button';
+import * as Card from '#/components/card';
+import * as Collapsible from '#/components/collapsible';
+import Link from '#/components/link';
+import SearchField from '#/components/searchfield';
+import * as Select from '#/components/select';
+import { DateTime, Text } from '#/components/typography';
 import {
   GET_REPOSITORY_DEFAULT_REQUEST,
   getRepositoryMetadataQueryOptions,
   getRepositoryQueryOptions,
   type GetRepositoryRequest,
-} from '@/server/fetch/src/repository';
+} from '#/server/fetch/src/repository';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';

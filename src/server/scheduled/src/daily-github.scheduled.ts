@@ -1,4 +1,4 @@
-import db, { githubRepositoryLanguage } from '@/db';
+import db, { githubRepositoryLanguage } from '#/db';
 import puppeteer from '@cloudflare/puppeteer';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';

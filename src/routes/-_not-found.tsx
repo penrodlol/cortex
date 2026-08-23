@@ -1,5 +1,5 @@
-import Link from '@/components/link';
-import { Text } from '@/components/typography';
+import Link from '#/components/link';
+import { Text } from '#/components/typography';
 
 export default function NotFound() {
   return (

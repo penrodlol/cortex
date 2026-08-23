@@ -1,4 +1,4 @@
-import db, { githubRepository, githubRepositoryLanguage, githubRepositoryPublisher } from '@/db';
+import db, { githubRepository, githubRepositoryLanguage, githubRepositoryPublisher } from '#/db';
 import { queryOptions } from '@tanstack/react-query';
 import { createServerFn } from '@tanstack/react-start';
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';

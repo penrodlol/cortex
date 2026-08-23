@@ -1,4 +1,4 @@
-import { getComponentVariants } from '@/libs/variants';
+import { getComponentVariants } from '#/libs/variants';
 import { tv, type VariantProps } from 'tailwind-variants';
 import Icon from './icon';
 

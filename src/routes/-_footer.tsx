@@ -1,4 +1,4 @@
-import { Text } from '@/components/typography';
+import { Text } from '#/components/typography';
 import * as Layout from './-_layout';
 
 export default function Footer() {

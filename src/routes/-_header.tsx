@@ -1,5 +1,5 @@
-import Link from '@/components/link';
-import { Text } from '@/components/typography';
+import Link from '#/components/link';
+import { Text } from '#/components/typography';
 import { useLocation } from '@tanstack/react-router';
 import * as Layout from './-_layout';
 import Search from './-_search';

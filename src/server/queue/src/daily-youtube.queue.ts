@@ -1,5 +1,5 @@
-import db, { youtubeVideo, type YoutubeVideo } from '@/db';
-import supadata from '@/libs/supadata';
+import db, { youtubeVideo, type YoutubeVideo } from '#/db';
+import supadata from '#/libs/supadata';
 import type { TranscriptOrJobId } from '@supadata/js';
 import { z } from 'zod';
 import type { DailyYoutubeScheduledBody } from '../../scheduled/src/daily-youtube.scheduled';

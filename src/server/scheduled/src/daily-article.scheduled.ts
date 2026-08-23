@@ -1,4 +1,4 @@
-import db, { article, type ArticlePublisher } from '@/db';
+import db, { article, type ArticlePublisher } from '#/db';
 import puppeteer from '@cloudflare/puppeteer';
 import { gte } from 'drizzle-orm';
 import Parser from 'rss-parser';

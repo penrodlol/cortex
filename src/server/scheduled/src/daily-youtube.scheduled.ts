@@ -1,5 +1,5 @@
-import db, { youtubeVideo, type YoutubeChannel } from '@/db';
-import youtube from '@/libs/youtube';
+import db, { youtubeVideo, type YoutubeChannel } from '#/db';
+import youtube from '#/libs/youtube';
 import type { youtube_v3 } from '@googleapis/youtube';
 import { gte } from 'drizzle-orm';
 import { createQueueEventBody } from '../../queue';

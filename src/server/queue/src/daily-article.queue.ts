@@ -1,4 +1,4 @@
-import db, { article, type Article } from '@/db';
+import db, { article, type Article } from '#/db';
 import type { DailyArticleScheduledBody } from '../../scheduled/src/daily-article.scheduled';
 import { executeWithRetry } from '../../utils/function';
 import { logError, logInfo } from '../../utils/logger';

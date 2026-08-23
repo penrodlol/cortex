@@ -1,4 +1,4 @@
-import Button from '@/components/button';
+import Button from '#/components/button';
 import { CircleHalfIcon } from '@phosphor-icons/react';
 import { ScriptOnce } from '@tanstack/react-router';
 import { createContext, use, useEffect, useState } from 'react';

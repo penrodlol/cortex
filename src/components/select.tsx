@@ -1,4 +1,4 @@
-import { getComponentVariants } from '@/libs/variants';
+import { getComponentVariants } from '#/libs/variants';
 import { CaretUpDownIcon } from '@phosphor-icons/react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Autocomplete as AriaAutocomplete } from 'react-aria-components/Autocomplete';

@@ -1,4 +1,4 @@
-import { getComponentVariants } from '@/libs/variants';
+import { getComponentVariants } from '#/libs/variants';
 import { Button as AriaButton } from 'react-aria-components/Button';
 import { composeRenderProps } from 'react-aria-components/composeRenderProps';
 import { tv, type ClassValue, type VariantProps } from 'tailwind-variants';

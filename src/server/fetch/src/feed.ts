@@ -1,4 +1,4 @@
-import db, { article, articlePublisher, articleVirtual, youtubeChannel, youtubeVideo, youtubeVideoVirtual } from '@/db';
+import db, { article, articlePublisher, articleVirtual, youtubeChannel, youtubeVideo, youtubeVideoVirtual } from '#/db';
 import { queryOptions } from '@tanstack/react-query';
 import { createServerFn } from '@tanstack/react-start';
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';

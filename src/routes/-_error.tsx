@@ -1,5 +1,5 @@
 import Button from '#/components/button';
-import { Text } from '@/components/typography';
+import { Text } from '#/components/typography';
 import { useQueryErrorResetBoundary } from '@tanstack/react-query';
 import type { ErrorRouteComponent } from '@tanstack/react-router';
 import { useRouter } from '@tanstack/react-router';

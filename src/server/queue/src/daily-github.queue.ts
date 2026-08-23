@@ -5,8 +5,8 @@ import db, {
   type GithubRepository,
   type GithubRepositoryLanguage,
   type GithubRepositoryPublisher,
-} from '@/db';
-import octokit, { type GetRepositoryResponse } from '@/libs/octokit';
+} from '#/db';
+import octokit, { type GetRepositoryResponse } from '#/libs/octokit';
 import { eq, sql } from 'drizzle-orm';
 import removeMarkdown from 'remove-markdown';
 import type { DailyGithubScheduledBody } from '../../scheduled/src/daily-github.scheduled';
