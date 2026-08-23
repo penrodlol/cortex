@@ -6,31 +6,36 @@ import Link from '@/components/link';
 import SearchField from '@/components/searchfield';
 import * as Select from '@/components/select';
 import { DateTime, Text } from '@/components/typography';
-import type { GetFeedRequest } from '@/server/fetch/src/feed';
-import { GET_FEED_DEFAULT_REQUEST, getFeedMetadataQueryOptions, getFeedQueryOptions } from '@/server/fetch/src/feed';
+import {
+  GET_REPOSITORY_DEFAULT_REQUEST,
+  getRepositoryMetadataQueryOptions,
+  getRepositoryQueryOptions,
+  type GetRepositoryRequest,
+} from '@/server/fetch/src/repository';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useFilter } from 'react-aria-components/Autocomplete';
 import * as Layout from './-_layout';
 
-export const Route = createFileRoute('/')({
-  component: HomePage,
+export const Route = createFileRoute('/repository')({
+  component: RepositoryPage,
   loader: async ({ context }) => {
-    const feedInitialFilterProps = { ...GET_FEED_DEFAULT_REQUEST };
-    const [feedMetadata, feed] = await Promise.all([
-      context.queryClient.ensureQueryData(getFeedMetadataQueryOptions()),
-      context.queryClient.ensureQueryData(getFeedQueryOptions(feedInitialFilterProps)),
+    const repositoryInitialFilterProps = { ...GET_REPOSITORY_DEFAULT_REQUEST };
+    const [repositoryMetadata, repositories] = await Promise.all([
+      context.queryClient.ensureQueryData(getRepositoryMetadataQueryOptions()),
+      context.queryClient.ensureQueryData(getRepositoryQueryOptions(repositoryInitialFilterProps)),
     ]);
-    return { feedMetadata, feedInitialFilterProps, feed };
+    return { repositoryMetadata, repositoryInitialFilterProps, repositories };
   },
 });
 
-function HomePage() {
-  const { feedMetadata, feedInitialFilterProps } = Route.useLoaderData();
+function RepositoryPage() {
+  const { repositoryMetadata, repositoryInitialFilterProps } = Route.useLoaderData();
   const { queryClient } = Route.useRouteContext();
-  const [filterProps, setFilterProps] = useState(feedInitialFilterProps);
-  const { data: filteredFeed, isLoading, isFetching } = useQuery(getFeedQueryOptions(filterProps));
+  const [filterProps, setFilterProps] = useState(repositoryInitialFilterProps);
+  const { data: filteredFeed, isLoading, isFetching } = useQuery(getRepositoryQueryOptions(filterProps));
+  const { contains: languageContains } = useFilter({ sensitivity: 'base' });
   const { contains: publisherContains } = useFilter({ sensitivity: 'base' });
 
   return (
@@ -38,15 +43,16 @@ function HomePage() {
       header={() => (
         <>
           <Select.Root
-            aria-label="Type filter"
-            placeholder="Filter by type"
+            aria-label="Language filter"
+            placeholder="Filter by language"
             selectionMode="multiple"
-            value={filterProps.types ?? []}
-            onChange={(e) => setFilterProps((prev) => ({ ...prev, types: e as GetFeedRequest['types'], page: 1 }))}
+            value={filterProps.languageIds ?? []}
+            onChange={(e) => setFilterProps((prev) => ({ ...prev, languageIds: e as GetRepositoryRequest['languageIds'], page: 1 }))}
           >
             <Select.Trigger variant="gray-ghost" className="border-gray-6 h-18 px-8 not-lg:border-b lg:border-r lg:px-12" />
-            <Select.Content crossOffset={12}>
-              <Select.Items items={feedMetadata.types.map((type) => ({ id: type, name: type }))}>
+            <Select.Content crossOffset={12} filterProps={{ filter: languageContains }}>
+              <SearchField aria-label="Search languages" inputProps={{ placeholder: 'Search languages' }} />
+              <Select.Items itemsVirtualized={repositoryMetadata.languages}>
                 {(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}
               </Select.Items>
             </Select.Content>
@@ -56,12 +62,12 @@ function HomePage() {
             placeholder="Filter by publisher"
             selectionMode="multiple"
             value={filterProps.publisherIds ?? []}
-            onChange={(e) => setFilterProps((prev) => ({ ...prev, publisherIds: e as GetFeedRequest['publisherIds'], page: 1 }))}
+            onChange={(e) => setFilterProps((prev) => ({ ...prev, publisherIds: e as GetRepositoryRequest['publisherIds'], page: 1 }))}
           >
             <Select.Trigger variant="gray-ghost" className="h-18 px-8 lg:px-12" />
             <Select.Content crossOffset={12} filterProps={{ filter: publisherContains }}>
               <SearchField aria-label="Search publishers" inputProps={{ placeholder: 'Search publishers' }} />
-              <Select.Items itemsVirtualized={feedMetadata.publishers}>
+              <Select.Items itemsVirtualized={repositoryMetadata.publishers}>
                 {(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}
               </Select.Items>
             </Select.Content>
@@ -91,12 +97,12 @@ function HomePage() {
             <Card.Root className="border-gray-6 w-full px-8 py-12 not-lg:border-b lg:px-12 lg:group-first/collapsible:border-r">
               <Card.Header>
                 <Text font="serif" variant="gray-soft" size="2">
-                  {entry.type}
+                  {entry.languageName}
                 </Text>
                 <Text variant="gray-soft" size="2">
                   //
                 </Text>
-                <DateTime value={entry.pubDate} font="serif" variant="gray-soft" size="2" />
+                <DateTime value={entry.updatedAt} font="serif" variant="gray-soft" size="2" />
                 <Link font="serif" variant="gray-soft" size="1" href={entry.sourceUrl} className="ml-auto flex items-center gap-2">
                   <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.sourceName.slice(0, 1)} />
                   {entry.sourceName}
@@ -114,7 +120,7 @@ function HomePage() {
               </Card.Content>
               <Card.Footer>
                 <Link font="serif" variant="gray-soft" href={entry.url}>
-                  {entry.urlLabel}
+                  View Repository
                 </Link>
               </Card.Footer>
             </Card.Root>
@@ -139,7 +145,7 @@ function HomePage() {
               filteredFeed?.hasNextPage &&
               !isLoading &&
               !isFetching &&
-              queryClient.prefetchQuery(getFeedQueryOptions({ ...filterProps, page: filterProps.page + 1 }))
+              queryClient.prefetchQuery(getRepositoryQueryOptions({ ...filterProps, page: filterProps.page + 1 }))
             }
             className="my-8 mr-8 max-w-max justify-self-end"
           >

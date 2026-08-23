@@ -3,7 +3,7 @@ import * as Layout from './-_layout';
 
 export default function Footer() {
   return (
-    <Layout.Row as="footer" border="top">
+    <Layout.Row as="footer" border="top" variant="gray-soft-gradient" className="lg:bg-none">
       <Layout.Content className="flex flex-wrap items-end justify-between gap-4 p-8 lg:px-12">
         <div>
           <Text italic font="serif" size="5" weight="9" className="tracking-tighter">
