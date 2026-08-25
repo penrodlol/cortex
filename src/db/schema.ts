@@ -122,6 +122,7 @@ export const xPost = sqliteTable('x_post', {
   xUserId: foreignKey('x_user_id', () => xUser.id, { onDelete: 'cascade' }).notNull(),
   xRepostedUserId: foreignKey('x_reposted_user_id', () => xUser.id, { onDelete: 'cascade' }),
   xRepliedUserId: foreignKey('x_replied_user_id', () => xUser.id, { onDelete: 'cascade' }),
+  xQuotedUserId: foreignKey('x_quoted_user_id', () => xUser.id, { onDelete: 'cascade' }),
 });
 
 export const summary = sqliteTable('summary', {
