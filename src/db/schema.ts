@@ -184,9 +184,11 @@ export const githubRepositoryRelations = relations(githubRepository, ({ one }) =
 export const xUserRelations = relations(xUser, ({ many }) => ({
   posts: many(xPost),
   repostedPosts: many(xPost, { relationName: 'xRepostedUser' }),
+  repliedPosts: many(xPost, { relationName: 'xRepliedUser' }),
 }));
 
 export const xPostRelations = relations(xPost, ({ one }) => ({
   user: one(xUser, { fields: [xPost.xUserId], references: [xUser.id] }),
   repostedUser: one(xUser, { fields: [xPost.xRepostedUserId], references: [xUser.id] }),
+  repliedUser: one(xUser, { fields: [xPost.xRepliedUserId], references: [xUser.id] }),
 }));
