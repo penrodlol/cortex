@@ -148,6 +148,13 @@
       "when": 1787618156041,
       "tag": "0020_zippy_nightshade",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1787619586540,
+      "tag": "0021_cooing_shaman",
+      "breakpoints": true
     }
   ]
 }

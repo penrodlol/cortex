@@ -1,0 +1,1 @@
+ALTER TABLE `x_post` ADD `x_replied_user_id` text REFERENCES x_user(id);
