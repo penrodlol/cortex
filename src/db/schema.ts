@@ -109,7 +109,7 @@ export const xUser = sqliteTable('x_user', {
   xId: text('x_id').unique().notNull(),
   username: text().notNull(),
   name: text().notNull(),
-  logoUrl: text('logo_url').notNull(),
+  logoUrl: text('logo_url'),
   createdAt: timestamp('created_at'),
 });
 
