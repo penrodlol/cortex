@@ -23,7 +23,13 @@ const handler: ExportedHandler<Env>['scheduled'] = async (event, env) => {
 
     switch (event.cron) {
       case '0 5 * * *': {
-        await Promise.all([dailyArticleScheduled(env, daysAgo.data), dailyYoutubeScheduled(env, daysAgo.data), dailyGithubScheduled(env)]);
+        const handlers = await Promise.allSettled([
+          dailyArticleScheduled(env, daysAgo.data),
+          dailyYoutubeScheduled(env, daysAgo.data),
+          dailyGithubScheduled(env),
+        ]);
+        for (const handler of handlers)
+          if (handler.status === 'rejected') logError(SCHEDULED_HANDLER_ERROR, { error: handler.reason, event });
         break;
       }
       default:
