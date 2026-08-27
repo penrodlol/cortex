@@ -32,7 +32,7 @@ const handler = async (env: Env, body: DailyYoutubeScheduledBody) => {
     const youtubeVideoUrl = `https://www.youtube.com/watch?v=${youtubeVideoId}`;
     const youtubeVideoTranscript = await executeWithRetry(async () => {
       await sleep();
-      return supadata.transcript({ url: youtubeVideoUrl, lang: 'en', text: true, mode: 'auto' });
+      return supadata.transcript({ url: youtubeVideoUrl, lang: 'en', text: true, mode: 'native' });
     });
     if (!youtubeVideoTranscript.success) {
       failed.push({ videoId: youtubeVideoId, title: item.snippet.title, error: youtubeVideoTranscript.error });
