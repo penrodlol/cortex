@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import { integer, SQLiteColumnBuilder, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, SQLiteColumnBuilder, sqliteTable, text, type AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 export type ArticlePublisher = typeof articlePublisher.$inferSelect;
 export type ArticlePublishers = Array<ArticlePublisher>;
@@ -119,10 +119,9 @@ export const xPost = sqliteTable('x_post', {
   text: text().notNull(),
   pubDate: integer('pub_date').notNull(),
   createdAt: timestamp('created_at'),
+  referenceType: text('reference_type', { enum: ['reposted', 'quoted', 'replied_to'] }),
   xUserId: foreignKey('x_user_id', () => xUser.id, { onDelete: 'cascade' }).notNull(),
-  xRepostedUserId: foreignKey('x_reposted_user_id', () => xUser.id, { onDelete: 'cascade' }),
-  xRepliedUserId: foreignKey('x_replied_user_id', () => xUser.id, { onDelete: 'cascade' }),
-  xQuotedUserId: foreignKey('x_quoted_user_id', () => xUser.id, { onDelete: 'cascade' }),
+  xReferencedPostId: foreignKey('x_referenced_post_id', (): AnySQLiteColumn => xPost.id, { onDelete: 'cascade' }),
 });
 
 export const summary = sqliteTable('summary', {
@@ -182,14 +181,10 @@ export const githubRepositoryRelations = relations(githubRepository, ({ one }) =
   }),
 }));
 
-export const xUserRelations = relations(xUser, ({ many }) => ({
-  posts: many(xPost),
-  repostedPosts: many(xPost, { relationName: 'xRepostedUser' }),
-  repliedPosts: many(xPost, { relationName: 'xRepliedUser' }),
-}));
+export const xUserRelations = relations(xUser, ({ many }) => ({ posts: many(xPost) }));
 
-export const xPostRelations = relations(xPost, ({ one }) => ({
+export const xPostRelations = relations(xPost, ({ one, many }) => ({
   user: one(xUser, { fields: [xPost.xUserId], references: [xUser.id] }),
-  repostedUser: one(xUser, { fields: [xPost.xRepostedUserId], references: [xUser.id] }),
-  repliedUser: one(xUser, { fields: [xPost.xRepliedUserId], references: [xUser.id] }),
+  referencedPost: one(xPost, { relationName: 'xReferencedPost', fields: [xPost.xReferencedPostId], references: [xPost.id] }),
+  referencingPosts: many(xPost, { relationName: 'xReferencedPost' }),
 }));

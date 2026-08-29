@@ -162,6 +162,13 @@
       "when": 1787620718067,
       "tag": "0022_strong_leader",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1788028576515,
+      "tag": "0023_harsh_sleeper",
+      "breakpoints": true
     }
   ]
 }
