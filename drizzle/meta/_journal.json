@@ -169,6 +169,13 @@
       "when": 1788028576515,
       "tag": "0023_harsh_sleeper",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1792971952506,
+      "tag": "0024_slim_lyja",
+      "breakpoints": true
     }
   ]
 }
