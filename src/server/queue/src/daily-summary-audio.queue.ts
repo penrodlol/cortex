@@ -1,14 +1,16 @@
 import db, { article, summaryAudio, youtubeVideo } from '#/db';
-import { sound, speech, textToSpeech, type SpeechSegments } from '#/server/utils/speech';
 import { inArray } from 'drizzle-orm';
 import type { DailySummaryAudioScheduledBody } from '../../scheduled/src/daily-summary-audio.scheduled';
 import { executeWithRetry } from '../../utils/function';
+import { logInfo } from '../../utils/logger';
 import { generateSummaryAudioPrompt } from '../../utils/prompts';
+import { sound, speech, textToSpeech, type SpeechSegments } from '../../utils/speech';
 
 export const DAILY_SUMMARY_AUDIO_QUEUE_FAILED_PROMPT_CREATION_ERROR = 'Failed To Create Summary Audio Prompt';
 export const DAILY_SUMMARY_AUDIO_QUEUE_SEGMENT_TOO_LONG_ERROR = 'Failed To Segment Summary Audio As Chunk Is Too Long';
 export const DAILY_SUMMARY_AUDIO_QUEUE_FAILED_AUDIO_UPLOAD_ERROR = 'Failed To Upload Summary Audio';
 export const DAILY_SUMMARY_AUDIO_QUEUE_FAILED_DB_PERSIST_ERROR = 'Failed To Persist To Database';
+export const DAILY_SUMMARY_AUDIO_QUEUE_COMPLETED = 'Daily Summary Audio Queue Completed';
 
 const handler = async (env: Env, body: DailySummaryAudioScheduledBody) => {
   const prompt = await executeWithRetry(() => generateSummaryAudioPrompt(env, 'daily_summary_audio_queue_ai_response', body.items));
@@ -30,6 +32,10 @@ const handler = async (env: Env, body: DailySummaryAudioScheduledBody) => {
 
   const persistResult = await persist(env, summaryAudioId, summaryAudioKey, body.items);
   if (!persistResult.success) throw new Error(DAILY_SUMMARY_AUDIO_QUEUE_FAILED_DB_PERSIST_ERROR, { cause: persistResult.error });
+
+  logInfo(DAILY_SUMMARY_AUDIO_QUEUE_COMPLETED, {
+    successful: Object.values(body.items.articles).flat().length + Object.values(body.items.youtubeVideos).flat().length,
+  });
 };
 
 function getSegmentedPrompts(env: Env, prompt: Awaited<ReturnType<typeof generateSummaryAudioPrompt>>) {
