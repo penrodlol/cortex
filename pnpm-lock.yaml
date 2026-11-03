@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@elevenlabs/elevenlabs-js':
+        specifier: ^2.75.0
+        version: 2.75.0
       '@googleapis/youtube':
         specifier: ^34.0.0
         version: 34.0.0
@@ -260,6 +263,10 @@ packages:
 
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
+
+  '@elevenlabs/elevenlabs-js@2.75.0':
+    resolution: {integrity: sha512-sCEddZAQS+JdAvD+jnqXund75mygRkHzgigqbWsQpcJozwe15FOtymS2+28YMOY06Pmja9l8EUE1LlXAtlW0Nw==}
+    engines: {node: '>=18.0.0'}
 
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
@@ -1865,6 +1872,9 @@ packages:
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
 
+  command-exists@1.2.9:
+    resolution: {integrity: sha512-LTQ/SGc+s0Xc0Fu5WaKnR0YiygZkm9eKFvyS+fRsU7/ZWFF8ykFM6Pc9aCVf1+xasOOZpO3BAVgVrKvsqKHV7w==}
+
   content-type@2.1.0:
     resolution: {integrity: sha512-mj7UPXE0jaqaOsukNZRUEfEi2AcL7C/vwmwcHV0O97eO1E1pxBZuyjlZrx5seTaNBg1U6+o35wpa35Qfcc+7ag==}
     engines: {node: '>=18'}
@@ -3250,6 +3260,16 @@ snapshots:
 
   '@drizzle-team/brocli@0.10.2': {}
 
+  '@elevenlabs/elevenlabs-js@2.75.0':
+    dependencies:
+      command-exists: 1.2.9
+      node-fetch: 2.7.0
+      ws: 8.21.3
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+
   '@emnapi/runtime@1.11.3':
     dependencies:
       tslib: 2.8.1
@@ -4470,6 +4490,8 @@ snapshots:
       color-name: 1.1.4
 
   color-name@1.1.4: {}
+
+  command-exists@1.2.9: {}
 
   content-type@2.1.0: {}
 

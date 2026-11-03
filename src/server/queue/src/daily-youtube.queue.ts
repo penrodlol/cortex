@@ -5,7 +5,7 @@ import { z } from 'zod';
 import type { DailyYoutubeScheduledBody } from '../../scheduled/src/daily-youtube.scheduled';
 import { executeWithRetry } from '../../utils/function';
 import { logError, logInfo } from '../../utils/logger';
-import { summarize } from '../../utils/prompt';
+import { summarize } from '../../utils/prompts';
 import { sleep } from '../../utils/sleep';
 
 export const DAILY_YOUTUBE_QUEUE_INVALID_REPING_LIMIT_ERROR = 'Invalid Reping Limit';
@@ -21,7 +21,7 @@ const handler = async (env: Env, body: DailyYoutubeScheduledBody) => {
   const repingLimit = z.coerce.number().int().nonnegative().safeParse(env.CLOUDFLARE_DAILY_QUEUE_REPING_LIMIT);
   if (!repingLimit.success) throw new Error(DAILY_YOUTUBE_QUEUE_INVALID_REPING_LIMIT_ERROR, { cause: z.prettifyError(repingLimit.error) });
 
-  const successful: Array<Omit<YoutubeVideo, 'id' | 'createdAt'>> = [];
+  const successful: Array<Omit<YoutubeVideo, 'id' | 'createdAt' | 'summaryAudioId'>> = [];
   const failed: Array<Partial<YoutubeVideo> & { error: unknown }> = [];
 
   for (const item of body.items) {

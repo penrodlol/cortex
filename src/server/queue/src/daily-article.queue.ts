@@ -2,7 +2,7 @@ import db, { article, type Article } from '#/db';
 import type { DailyArticleScheduledBody } from '../../scheduled/src/daily-article.scheduled';
 import { executeWithRetry } from '../../utils/function';
 import { logError, logInfo } from '../../utils/logger';
-import { summarize } from '../../utils/prompt';
+import { summarize } from '../../utils/prompts';
 import { sleep } from '../../utils/sleep';
 
 export const DAILY_ARTICLE_QUEUE_SCRAPE_REQUEST_ERROR = 'Scrape Request Failed';
@@ -11,7 +11,7 @@ export const DAILY_ARTICLE_QUEUE_ERROR = 'Daily Article Queue Error';
 export const DAILY_ARTICLE_QUEUE_COMPLETED = 'Daily Article Queue Completed';
 
 const handler = async (env: Env, body: DailyArticleScheduledBody) => {
-  const successful: Array<Omit<Article, 'id' | 'createdAt'>> = [];
+  const successful: Array<Omit<Article, 'id' | 'createdAt' | 'summaryAudioId'>> = [];
   const failed: Array<DailyArticleScheduledBody['items'][number] & { error: unknown }> = [];
 
   for (const item of body.items) {

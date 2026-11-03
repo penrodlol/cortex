@@ -16,6 +16,7 @@
     "db-migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.75.0",
     "@googleapis/youtube": "^34.0.0",
     "@octokit/rest": "^22.0.1",
     "@phosphor-icons/react": "^2.1.10",

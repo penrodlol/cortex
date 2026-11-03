@@ -1,7 +1,26 @@
 import { z } from 'zod';
 
 export async function summarize(env: Env, name: string, content: string) {
-  const prompt = `
+  const schema = z.preprocess(
+    (value) => {
+      if (typeof value === 'string') return { summary: value };
+      if (Array.isArray(value)) return { summary: typeof value[0] === 'string' ? value[0] : value[0]?.summary };
+      return value;
+    },
+    z.object({ summary: z.string().min(1).max(2000) }),
+  );
+
+  const aiRunResponse = await env.AI.run(env.CLOUDFLARE_AI_MODEL, {
+    messages: [{ role: 'user', content: `${prompt}\n${content}` }],
+    response_format: { type: 'json_schema', json_schema: { ...z.toJSONSchema(schema), name, strict: true } },
+  });
+  const aiRunResponseText = (aiRunResponse as ChatCompletionsOutput)?.choices?.[0]?.message?.content;
+  const aiRunResponseJson = schema.safeParse(JSON.parse(aiRunResponseText ?? '{}'));
+  if (!aiRunResponseJson.success) throw new Error(z.prettifyError(aiRunResponseJson.error));
+  return aiRunResponseJson.data.summary;
+}
+
+const prompt = `
   Summarize the content.
   
   Summary requirements:
@@ -10,26 +29,7 @@ export async function summarize(env: Env, name: string, content: string) {
   - Write naturally, as if written by an experienced engineer.
   - Avoid generic introductions such as "This article", "This blog post", or "This guide".
   - Focus on the most important information and omit minor details.
+  - Keep the summary under 250 words.
   
   Content:
-  ${content}
   `;
-
-  const schema = z.preprocess(
-    (value) => {
-      if (typeof value === 'string') return { summary: value };
-      if (Array.isArray(value)) return { summary: typeof value[0] === 'string' ? value[0] : value[0]?.summary };
-      return value;
-    },
-    z.object({ summary: z.string().min(1) }),
-  );
-
-  const aiRunResponse = await env.AI.run(env.CLOUDFLARE_AI_MODEL, {
-    messages: [{ role: 'user', content: prompt }],
-    response_format: { type: 'json_schema', json_schema: { ...z.toJSONSchema(schema), name, strict: true } },
-  });
-  const aiRunResponseText = (aiRunResponse as ChatCompletionsOutput)?.choices?.[0]?.message?.content;
-  const aiRunResponseJson = schema.safeParse(JSON.parse(aiRunResponseText ?? '{}'));
-  if (!aiRunResponseJson.success) throw new Error(z.prettifyError(aiRunResponseJson.error));
-  return aiRunResponseJson.data.summary;
-}

@@ -49,6 +49,7 @@ export const article = sqliteTable('article', {
   pubDate: integer('pub_date').notNull(),
   createdAt: timestamp('created_at'),
   articlePublisherId: foreignKey('article_publisher_id', () => articlePublisher.id, { onDelete: 'cascade' }).notNull(),
+  summaryAudioId: foreignKey('summary_audio_id', () => summaryAudio.id, { onDelete: 'set null' }),
 });
 
 export const youtubeChannel = sqliteTable('youtube_channel', {
@@ -68,6 +69,7 @@ export const youtubeVideo = sqliteTable('youtube_video', {
   pubDate: integer('pub_date').notNull(),
   createdAt: timestamp('created_at'),
   youtubeChannelId: foreignKey('youtube_channel_id', () => youtubeChannel.id, { onDelete: 'cascade' }).notNull(),
+  summaryAudioId: foreignKey('summary_audio_id', () => summaryAudio.id, { onDelete: 'set null' }),
 });
 
 export const githubRepositoryLanguage = sqliteTable('github_repository_language', {
@@ -98,6 +100,12 @@ export const githubRepository = sqliteTable('github_repository', {
   githubRepositoryPublisherId: foreignKey('github_repository_publisher_id', () => githubRepositoryPublisher.id, {
     onDelete: 'cascade',
   }).notNull(),
+});
+
+export const summaryAudio = sqliteTable('summary_audio', {
+  id: primaryKey,
+  audioUrl: text('audio_url').unique().notNull(),
+  createdAt: timestamp('created_at'),
 });
 
 export const summary = sqliteTable('summary', {

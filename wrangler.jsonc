@@ -9,6 +9,7 @@
   "triggers": { "crons": ["0 5 * * *"] },
   "observability": { "enabled": true },
   "browser": { "binding": "BROWSER", "remote": true },
+  "r2_buckets": [{ "binding": "R2", "bucket_name": "cortex", "remote": true }],
   "d1_databases": [
     {
       "binding": "DB",

@@ -12,7 +12,7 @@ import removeMarkdown from 'remove-markdown';
 import type { DailyGithubScheduledBody } from '../../scheduled/src/daily-github.scheduled';
 import { executeWithRetry } from '../../utils/function';
 import { logError, logInfo } from '../../utils/logger';
-import { summarize } from '../../utils/prompt';
+import { summarize } from '../../utils/prompts';
 import { sleep } from '../../utils/sleep';
 
 export const DAILY_GITHUB_QUEUE_REPOSITORY_FETCH_ERROR = 'Error Fetching Github Repository';
