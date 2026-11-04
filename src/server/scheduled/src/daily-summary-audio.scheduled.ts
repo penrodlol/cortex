@@ -10,7 +10,7 @@ export const DAILY_SUMMARY_AUDIO_SCHEDULED_NO_FEED_ENTRIES_ERROR = 'No Feed Entr
 export const DAILY_SUMMARY_AUDIO_SCHEDULED_COMPLETED = 'Daily Summary Audio Scheduled Completed';
 
 const dailySummaryAudioScheduled = async (env: Env, daysAgo: number) => {
-  const entries = await getEntries(daysAgo);
+  const entries = await getEntries(daysAgo - 3 * 60 * 60 * 1000);
   if (!entries.success) throw new Error(DAILY_SUMMARY_AUDIO_SCHEDULED_NO_FEED_ENTRIES_ERROR, { cause: entries.error });
 
   if (Object.keys(entries.data.articles).length > 0 || Object.keys(entries.data.youtubeVideos).length > 0)
