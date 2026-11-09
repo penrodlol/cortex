@@ -105,6 +105,7 @@ export const githubRepository = sqliteTable('github_repository', {
 export const summaryAudio = sqliteTable('summary_audio', {
   id: primaryKey,
   audioUrl: text('audio_url').unique().notNull(),
+  audioPeaks: text('audio_peaks').notNull().default('[]'),
   createdAt: timestamp('created_at'),
 });
 

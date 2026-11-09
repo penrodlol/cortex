@@ -1,0 +1,1 @@
+ALTER TABLE `summary_audio` ADD `audio_peaks` text DEFAULT '[]' NOT NULL;
