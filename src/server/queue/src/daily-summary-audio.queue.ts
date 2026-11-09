@@ -20,17 +20,17 @@ const handler = async (env: Env, body: DailySummaryAudioScheduledBody) => {
   if (segmentedPromps.length === 0) return;
 
   const textToSpeechResponse = await textToSpeech(env, segmentedPromps);
-  if (textToSpeechResponse.length === 0) return;
+  if (textToSpeechResponse.audio.length === 0 || textToSpeechResponse.peaks.length === 0) return;
 
   const summaryAudioId = crypto.randomUUID();
   const summaryAudioKey = `summary-audio/${summaryAudioId}.mp3`;
   const summaryAudioUpload = await executeWithRetry(() =>
-    env.R2.put(summaryAudioKey, textToSpeechResponse, { httpMetadata: { contentType: 'audio/mpeg' } }),
+    env.R2.put(summaryAudioKey, textToSpeechResponse.audio, { httpMetadata: { contentType: 'audio/mpeg' } }),
   );
   if (!summaryAudioUpload.success)
     throw new Error(DAILY_SUMMARY_AUDIO_QUEUE_FAILED_AUDIO_UPLOAD_ERROR, { cause: summaryAudioUpload.error });
 
-  const persistResult = await persist(env, summaryAudioId, summaryAudioKey, body.items);
+  const persistResult = await persist(env, summaryAudioId, summaryAudioKey, textToSpeechResponse.peaks, body.items);
   if (!persistResult.success) throw new Error(DAILY_SUMMARY_AUDIO_QUEUE_FAILED_DB_PERSIST_ERROR, { cause: persistResult.error });
 
   logInfo(DAILY_SUMMARY_AUDIO_QUEUE_COMPLETED, {
@@ -77,7 +77,7 @@ function getSegmentedPrompts(env: Env, prompt: Awaited<ReturnType<typeof generat
   }, []);
 }
 
-async function persist(env: Env, summaryAudioId: string, summaryAudioKey: string, items: DailySummaryAudioScheduledBody['items']) {
+async function persist(env: Env, id: string, key: string, peaks: Array<number>, items: DailySummaryAudioScheduledBody['items']) {
   const articleIds = Object.values(items.articles).flatMap((entries) => entries.map(({ id }) => id));
   const youtubeVideoIds = Object.values(items.youtubeVideos).flatMap((entries) => entries.map(({ id }) => id));
   const articleIdsBatched = Array.from({ length: Math.ceil(articleIds.length / 10) }, (_, i) => articleIds.slice(i * 10, (i + 1) * 10));
@@ -87,13 +87,13 @@ async function persist(env: Env, summaryAudioId: string, summaryAudioKey: string
 
   const result = await executeWithRetry(() =>
     db.batch([
-      db.insert(summaryAudio).values({ id: summaryAudioId, audioUrl: new URL(summaryAudioKey, env.CLOUDFLARE_R2_URL).toString() }),
-      ...articleIdsBatched.map((ids) => db.update(article).set({ summaryAudioId }).where(inArray(article.id, ids))),
-      ...youtubeVideoIdsBatched.map((ids) => db.update(youtubeVideo).set({ summaryAudioId }).where(inArray(youtubeVideo.id, ids))),
+      db.insert(summaryAudio).values({ id, audioUrl: new URL(key, env.CLOUDFLARE_R2_URL).toString(), audioPeaks: JSON.stringify(peaks) }),
+      ...articleIdsBatched.map((ids) => db.update(article).set({ summaryAudioId: id }).where(inArray(article.id, ids))),
+      ...youtubeVideoIdsBatched.map((ids) => db.update(youtubeVideo).set({ summaryAudioId: id }).where(inArray(youtubeVideo.id, ids))),
     ]),
   );
   if (!result.success) {
-    await executeWithRetry(() => env.R2.delete(summaryAudioKey));
+    await executeWithRetry(() => env.R2.delete(key));
     return { success: false, error: result.error } as const;
   }
 
