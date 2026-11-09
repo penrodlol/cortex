@@ -87,7 +87,7 @@ async function persist(env: Env, id: string, key: string, peaks: Array<number>, 
 
   const result = await executeWithRetry(() =>
     db.batch([
-      db.insert(summaryAudio).values({ id, audioUrl: new URL(key, env.CLOUDFLARE_R2_URL).toString(), audioPeaks: JSON.stringify(peaks) }),
+      db.insert(summaryAudio).values({ id, audioUrl: new URL(key, env.CLOUDFLARE_R2_URL).toString(), audioPeaks: peaks }),
       ...articleIdsBatched.map((ids) => db.update(article).set({ summaryAudioId: id }).where(inArray(article.id, ids))),
       ...youtubeVideoIdsBatched.map((ids) => db.update(youtubeVideo).set({ summaryAudioId: id }).where(inArray(youtubeVideo.id, ids))),
     ]),
