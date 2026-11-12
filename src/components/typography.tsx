@@ -17,7 +17,7 @@ export type TextVariants = VariantProps<typeof textVariants>;
 
 export const textVariants = tv({
   base: 'max-w-prose',
-  defaultVariants: { font: 'sans', size: '3', weight: '4' },
+  defaultVariants: { size: '3', weight: '4' },
   variants: {
     trim: { true: '[text-box:trim-both_cap_alphabetic]' },
     font: { sans: 'font-sans', serif: 'font-serif', mono: 'font-mono' },

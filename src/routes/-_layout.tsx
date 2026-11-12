@@ -6,7 +6,7 @@ export type LayoutRootProps = React.ComponentProps<typeof Surface>;
 export type LayoutRowProps = React.ComponentProps<typeof Surface> & LayoutRowVariants;
 export type LayoutContentProps = React.ComponentProps<typeof Surface>;
 export type LayoutSectionProps<T> = React.ComponentProps<typeof Surface> & {
-  header: () => React.ReactNode;
+  headers: Array<() => React.ReactNode>;
   content: {
     entries: Array<T>;
     keyIdentifier: (entry: T) => React.Key;
@@ -52,7 +52,7 @@ export function Content({ className, ...props }: LayoutContentProps) {
   return <Surface className={cn('border-gray-6 mx-auto w-full max-w-7xl 2xl:border-x', className)} {...props} />;
 }
 
-export function Section<T>({ header, content, footer, className, ...props }: LayoutSectionProps<T>) {
+export function Section<T>({ headers, content, footer, className, ...props }: LayoutSectionProps<T>) {
   const [openEntry, setOpenEntry] = useState<string>();
   const layoutSectionContextValue = useMemo(() => ({ openEntry, setOpenEntry }), [openEntry]);
   const emptyEntries = useMemo(() => content.entries.length === 0, [content.entries.length]);
@@ -64,9 +64,11 @@ export function Section<T>({ header, content, footer, className, ...props }: Lay
   return (
     <LayoutSectionContext value={layoutSectionContextValue}>
       <Surface as="section" className={cn('flex flex-1 flex-col', className)} {...props}>
-        <Row border="bottom">
-          <Content className="grid lg:grid-cols-2">{header()}</Content>
-        </Row>
+        {headers.map((header, index) => (
+          <Row key={index} border="bottom">
+            <Content className="grid lg:grid-cols-2">{header()}</Content>
+          </Row>
+        ))}
         <Surface>
           {chunkedEntries.map((chunk) => (
             <Row key={content.keyIdentifier(chunk[0])}>

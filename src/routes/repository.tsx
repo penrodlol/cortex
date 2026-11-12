@@ -40,40 +40,42 @@ function RepositoryPage() {
 
   return (
     <Layout.Section
-      header={() => (
-        <>
-          <Select.Root
-            aria-label="Language filter"
-            placeholder="Filter by language"
-            selectionMode="multiple"
-            value={filterProps.languageIds ?? []}
-            onChange={(e) => setFilterProps((prev) => ({ ...prev, languageIds: e as GetRepositoryRequest['languageIds'], page: 1 }))}
-          >
-            <Select.Trigger variant="gray-ghost" className="border-gray-6 h-18 px-8 not-lg:border-b lg:border-r lg:px-12" />
-            <Select.Content crossOffset={12} filterProps={{ filter: languageContains }}>
-              <SearchField aria-label="Search languages" inputProps={{ placeholder: 'Search languages' }} />
-              <Select.Items itemsVirtualized={repositoryMetadata.languages}>
-                {(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}
-              </Select.Items>
-            </Select.Content>
-          </Select.Root>
-          <Select.Root
-            aria-label="Publisher filter"
-            placeholder="Filter by publisher"
-            selectionMode="multiple"
-            value={filterProps.publisherIds ?? []}
-            onChange={(e) => setFilterProps((prev) => ({ ...prev, publisherIds: e as GetRepositoryRequest['publisherIds'], page: 1 }))}
-          >
-            <Select.Trigger variant="gray-ghost" className="h-18 px-8 lg:px-12" />
-            <Select.Content crossOffset={12} filterProps={{ filter: publisherContains }}>
-              <SearchField aria-label="Search publishers" inputProps={{ placeholder: 'Search publishers' }} />
-              <Select.Items itemsVirtualized={repositoryMetadata.publishers}>
-                {(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}
-              </Select.Items>
-            </Select.Content>
-          </Select.Root>
-        </>
-      )}
+      headers={[
+        () => (
+          <>
+            <Select.Root
+              aria-label="Language filter"
+              placeholder="Filter by language"
+              selectionMode="multiple"
+              value={filterProps.languageIds ?? []}
+              onChange={(e) => setFilterProps((prev) => ({ ...prev, languageIds: e as GetRepositoryRequest['languageIds'], page: 1 }))}
+            >
+              <Select.Trigger variant="gray-ghost" className="border-gray-6 h-18 px-8 not-lg:border-b lg:border-r lg:px-12" />
+              <Select.Content crossOffset={12} filterProps={{ filter: languageContains }}>
+                <SearchField aria-label="Search languages" inputProps={{ placeholder: 'Search languages' }} />
+                <Select.Items itemsVirtualized={repositoryMetadata.languages}>
+                  {(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}
+                </Select.Items>
+              </Select.Content>
+            </Select.Root>
+            <Select.Root
+              aria-label="Publisher filter"
+              placeholder="Filter by publisher"
+              selectionMode="multiple"
+              value={filterProps.publisherIds ?? []}
+              onChange={(e) => setFilterProps((prev) => ({ ...prev, publisherIds: e as GetRepositoryRequest['publisherIds'], page: 1 }))}
+            >
+              <Select.Trigger variant="gray-ghost" className="h-18 px-8 lg:px-12" />
+              <Select.Content crossOffset={12} filterProps={{ filter: publisherContains }}>
+                <SearchField aria-label="Search publishers" inputProps={{ placeholder: 'Search publishers' }} />
+                <Select.Items itemsVirtualized={repositoryMetadata.publishers}>
+                  {(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}
+                </Select.Items>
+              </Select.Content>
+            </Select.Root>
+          </>
+        ),
+      ]}
       content={{
         entries: filteredFeed?.entries ?? [],
         keyIdentifier: (entry) => entry.url,
