@@ -50,7 +50,7 @@ function RepositoryPage() {
               value={filterProps.languageIds ?? []}
               onChange={(e) => setFilterProps((prev) => ({ ...prev, languageIds: e as GetRepositoryRequest['languageIds'], page: 1 }))}
             >
-              <Select.Trigger variant="gray-ghost" className="border-gray-6 h-18 px-8 not-lg:border-b lg:border-r lg:px-12" />
+              <Select.Trigger variant="gray-ghost" className="border-gray-6 h-14 px-8 not-lg:border-b lg:h-18 lg:border-r lg:px-12" />
               <Select.Content crossOffset={12} filterProps={{ filter: languageContains }}>
                 <SearchField aria-label="Search languages" inputProps={{ placeholder: 'Search languages' }} />
                 <Select.Items itemsVirtualized={repositoryMetadata.languages}>
@@ -65,7 +65,7 @@ function RepositoryPage() {
               value={filterProps.publisherIds ?? []}
               onChange={(e) => setFilterProps((prev) => ({ ...prev, publisherIds: e as GetRepositoryRequest['publisherIds'], page: 1 }))}
             >
-              <Select.Trigger variant="gray-ghost" className="h-18 px-8 lg:px-12" />
+              <Select.Trigger variant="gray-ghost" className="h-14 px-8 lg:h-18 lg:px-12" />
               <Select.Content crossOffset={12} filterProps={{ filter: publisherContains }}>
                 <SearchField aria-label="Search publishers" inputProps={{ placeholder: 'Search publishers' }} />
                 <Select.Items itemsVirtualized={repositoryMetadata.publishers}>

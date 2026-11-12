@@ -104,7 +104,7 @@ function HomePage() {
                 value={feedFilterProps.types ?? []}
                 onChange={(e) => setFeedFilterProps((prev) => ({ ...prev, types: e as GetFeedRequest['types'], page: 1 }))}
               >
-                <Select.Trigger variant="gray-ghost" className="border-gray-6 h-18 px-8 not-lg:border-b lg:border-r lg:px-12" />
+                <Select.Trigger variant="gray-ghost" className="border-gray-6 h-14 px-8 not-lg:border-b lg:h-18 lg:border-r lg:px-12" />
                 <Select.Content crossOffset={12}>
                   <Select.Items items={feedMetadata.types.map((type) => ({ id: type, name: type }))}>
                     {(item) => <Select.Item id={item.id}>{item.name}</Select.Item>}
@@ -118,7 +118,7 @@ function HomePage() {
                 value={feedFilterProps.publisherIds ?? []}
                 onChange={(e) => setFeedFilterProps((prev) => ({ ...prev, publisherIds: e as GetFeedRequest['publisherIds'], page: 1 }))}
               >
-                <Select.Trigger variant="gray-ghost" className="h-18 px-8 lg:px-12" />
+                <Select.Trigger variant="gray-ghost" className="h-14 px-8 lg:h-18 lg:px-12" />
                 <Select.Content crossOffset={12} filterProps={{ filter: feedPublisherContains }}>
                   <SearchField aria-label="Search publishers" inputProps={{ placeholder: 'Search publishers' }} />
                   <Select.Items itemsVirtualized={feedMetadata.publishers}>
