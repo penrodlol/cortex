@@ -2,6 +2,7 @@ import type { DailyArticleScheduledBody } from '../scheduled/src/daily-article.s
 import type { DailyGithubScheduledBody } from '../scheduled/src/daily-github.scheduled';
 import type { DailySummaryAudioScheduledBody } from '../scheduled/src/daily-summary-audio.scheduled';
 import type { DailyYoutubeScheduledBody } from '../scheduled/src/daily-youtube.scheduled';
+import { purgeCache } from '../utils/cache';
 import { logError } from '../utils/logger';
 import dailyArticleQueue from './src/daily-article.queue';
 import dailyGithubQueue from './src/daily-github.queue';
@@ -16,8 +17,8 @@ export const QUEUE_HANDLER_ERROR = 'Error Processing Queue';
 
 const handler: ExportedHandler<Env, ReturnType<typeof createQueueEventBody>>['queue'] = async (batch, env) => {
   try {
-    await Promise.all(
-      batch.messages.map((message) => {
+    const handlers = await Promise.allSettled(
+      batch.messages.map(async (message) => {
         switch (message.body.type) {
           case 'daily-article':
             return dailyArticleQueue(env, message.body.data as DailyArticleScheduledBody);
@@ -32,6 +33,8 @@ const handler: ExportedHandler<Env, ReturnType<typeof createQueueEventBody>>['qu
         }
       }),
     );
+    for (const handler of handlers) if (handler.status === 'rejected') logError(QUEUE_HANDLER_ERROR, { error: handler.reason, batch });
+    if (handlers.some((handler) => handler.status === 'fulfilled' && handler.value)) await purgeCache();
   } catch (error) {
     logError(QUEUE_HANDLER_ERROR, { error, batch });
   }

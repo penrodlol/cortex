@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
 import { unionAll } from 'drizzle-orm/sqlite-core';
 import { z } from 'zod';
+import { setCacheHeaders } from '../../utils/cache';
 import { logError } from '../../utils/logger';
 
 export type FeedItemType = 'Article' | 'YouTube Video';
@@ -73,6 +74,8 @@ export const getFeedMetadata = createServerFn().handler(async () => {
       .from(youtubeChannel);
     const publishers = await unionAll(articlePublishers, youtubeChannels).orderBy(asc(sql`name collate nocase`));
 
+    setCacheHeaders();
+
     return { types, publishers };
   } catch (error) {
     logError(GET_FEED_METADATA_ERROR, error);
@@ -80,7 +83,7 @@ export const getFeedMetadata = createServerFn().handler(async () => {
   }
 });
 
-export const getFeed = createServerFn({ method: 'POST' })
+export const getFeed = createServerFn()
   .validator(getFeedRequestSchema)
   .handler(async ({ data }) => {
     try {
@@ -110,6 +113,8 @@ export const getFeed = createServerFn({ method: 'POST' })
         .orderBy(desc(articlesAndYoutubeVideos.pubDate), asc(articlesAndYoutubeVideos.title))
         .limit(GET_FEED_PAGE_SIZE + 1)
         .offset(data.page === 1 ? 0 : (data.page - 1) * GET_FEED_PAGE_SIZE);
+
+      setCacheHeaders();
 
       return {
         entries: entries.slice(0, GET_FEED_PAGE_SIZE),

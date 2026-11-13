@@ -60,13 +60,17 @@ const handler = async (env: Env, body: DailyArticleScheduledBody) => {
     });
   }
 
+  let successfulHasUpdates = false;
   if (successful.length) {
     const articles = await executeWithRetry(() => db.insert(article).values(successful).onConflictDoNothing());
     if (!articles.success) logError(DAILY_ARTICLE_QUEUE_ERROR, articles.error);
+    else successfulHasUpdates = articles.data.meta.changes > 0;
   }
   if (failed.length) logError(DAILY_ARTICLE_QUEUE_ERROR, { failed });
 
   logInfo(DAILY_ARTICLE_QUEUE_COMPLETED, { successful: successful.length, failed: failed.length });
+
+  return successfulHasUpdates;
 };
 
 export default handler;

@@ -1,4 +1,5 @@
 import tanstack from '@tanstack/react-start/server-entry';
+import { withCacheControl } from '../utils/cache';
 import { logError } from '../utils/logger';
 import bot from './src/bot';
 
@@ -10,7 +11,7 @@ const handler: ExportedHandler<Env>['fetch'] = async (request, env) => {
       case '/.well-known/http-message-signatures-directory':
         return bot(request, env);
       default:
-        return tanstack.fetch(request);
+        return withCacheControl(await tanstack.fetch(request));
     }
   } catch (error) {
     logError(FETCH_ERROR, { error, request });

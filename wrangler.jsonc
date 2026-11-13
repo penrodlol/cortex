@@ -8,6 +8,7 @@
   "ai": { "binding": "AI" },
   "triggers": { "crons": ["0 5 * * *", "0 8 * * *"] },
   "observability": { "enabled": true },
+  "cache": { "enabled": true },
   "browser": { "binding": "BROWSER", "remote": true },
   "r2_buckets": [{ "binding": "R2", "bucket_name": "cortex", "remote": true }],
   "d1_databases": [

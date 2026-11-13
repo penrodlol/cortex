@@ -17,10 +17,10 @@ const handler = async (env: Env, body: DailySummaryAudioScheduledBody) => {
   if (!prompt.success) throw new Error(DAILY_SUMMARY_AUDIO_QUEUE_FAILED_PROMPT_CREATION_ERROR, { cause: prompt.error });
 
   const segmentedPromps = getSegmentedPrompts(env, prompt.data);
-  if (segmentedPromps.length === 0) return;
+  if (segmentedPromps.length === 0) return false;
 
   const textToSpeechResponse = await textToSpeech(env, segmentedPromps);
-  if (textToSpeechResponse.audio.length === 0 || textToSpeechResponse.peaks.length === 0) return;
+  if (textToSpeechResponse.audio.length === 0 || textToSpeechResponse.peaks.length === 0) return false;
 
   const summaryAudioId = crypto.randomUUID();
   const summaryAudioKey = `summary-audio/${summaryAudioId}.mp3`;
@@ -36,6 +36,8 @@ const handler = async (env: Env, body: DailySummaryAudioScheduledBody) => {
   logInfo(DAILY_SUMMARY_AUDIO_QUEUE_COMPLETED, {
     successful: Object.values(body.items.articles).flat().length + Object.values(body.items.youtubeVideos).flat().length,
   });
+
+  return true;
 };
 
 function getSegmentedPrompts(env: Env, prompt: Awaited<ReturnType<typeof generateSummaryAudioPrompt>>) {

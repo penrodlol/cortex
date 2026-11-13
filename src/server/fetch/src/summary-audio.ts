@@ -3,6 +3,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { createServerFn } from '@tanstack/react-start';
 import { desc, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { setCacheHeaders } from '../../utils/cache';
 import { logError } from '../../utils/logger';
 
 export type GetSummaryAudioRequest = z.infer<typeof getSummaryAudioRequestSchema>;
@@ -48,6 +49,8 @@ export const getSummaryAudio = createServerFn()
         .limit(1)
         .get();
       if (!entry) return null;
+
+      setCacheHeaders();
 
       return { ...entry, audioPeaks: entry?.audioPeaks.map((value) => value / 255) ?? [] };
     } catch (error) {

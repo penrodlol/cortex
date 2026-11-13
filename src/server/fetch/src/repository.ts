@@ -3,6 +3,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { createServerFn } from '@tanstack/react-start';
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { setCacheHeaders } from '../../utils/cache';
 import { logError } from '../../utils/logger';
 
 export type GetRepositoryMetadataResponse = NonNullable<Awaited<ReturnType<typeof getRepositoryMetadata>>>;
@@ -50,6 +51,8 @@ export const getRepositoryMetadata = createServerFn().handler(async () => {
         .orderBy(asc(sql`name collate nocase`)),
     ]);
 
+    setCacheHeaders();
+
     return { languages, publishers };
   } catch (error) {
     logError(GET_REPOSITORY_METADATA_ERROR, error);
@@ -57,7 +60,7 @@ export const getRepositoryMetadata = createServerFn().handler(async () => {
   }
 });
 
-export const getRepository = createServerFn({ method: 'POST' })
+export const getRepository = createServerFn()
   .validator(getRepositoryRequestSchema)
   .handler(async ({ data }) => {
     try {
@@ -86,6 +89,8 @@ export const getRepository = createServerFn({ method: 'POST' })
         .orderBy(desc(githubRepository.updatedAt), asc(githubRepository.title))
         .limit(GET_REPOSITORY_PAGE_SIZE + 1)
         .offset(data.page === 1 ? 0 : (data.page - 1) * GET_REPOSITORY_PAGE_SIZE);
+
+      setCacheHeaders();
 
       return {
         entries: entries.slice(0, GET_REPOSITORY_PAGE_SIZE),

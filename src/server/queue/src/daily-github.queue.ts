@@ -86,6 +86,7 @@ const handler = async (env: Env, body: DailyGithubScheduledBody) => {
     });
   }
 
+  let successfulHasUpdates = false;
   const successfulChunked = Array.from(successful.values());
   for (let i = 0; i < successfulChunked.length; i += 10) {
     const githubRepositories = await executeWithRetry(() =>
@@ -95,10 +96,13 @@ const handler = async (env: Env, body: DailyGithubScheduledBody) => {
         .onConflictDoUpdate({ target: [githubRepository.url], set: { updatedAt: new Date().getTime() } }),
     );
     if (!githubRepositories.success) logError(DAILY_GITHUB_QUEUE_ERROR, githubRepositories.error);
+    else successfulHasUpdates ||= githubRepositories.data.meta.changes > 0;
   }
   if (failed.length) logError(DAILY_GITHUB_QUEUE_ERROR, { failed });
 
   logInfo(DAILY_GITHUB_QUEUE_COMPLETED, { successful: successful.size, failed: failed.length });
+
+  return successfulHasUpdates;
 };
 
 async function getGithubRepositoryLanguageId(map: Map<string, GithubRepositoryLanguage>, name: string) {

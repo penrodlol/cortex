@@ -64,13 +64,17 @@ const handler = async (env: Env, body: DailyYoutubeScheduledBody) => {
     });
   }
 
+  let successfulHasUpdates = false;
   if (successful.length) {
     const youtubeVideos = await executeWithRetry(() => db.insert(youtubeVideo).values(successful).onConflictDoNothing());
     if (!youtubeVideos.success) logError(DAILY_YOUTUBE_QUEUE_ERROR, youtubeVideos.error);
+    else successfulHasUpdates = youtubeVideos.data.meta.changes > 0;
   }
   if (failed.length) logError(DAILY_YOUTUBE_QUEUE_ERROR, { failed });
 
   logInfo(DAILY_YOUTUBE_QUEUE_COMPLETED, { successful: successful.length, failed: failed.length });
+
+  return successfulHasUpdates;
 };
 
 async function getYoutubeTranscriptPolled(request: TranscriptOrJobId, repingLimit: number, reping = 0) {
