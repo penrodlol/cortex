@@ -1,3 +1,6 @@
+import fraunces from '@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url';
+import geistMono from '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url';
+import geist from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
 import type { QueryClient } from '@tanstack/react-query';
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
 import { I18nProvider, useLocale } from 'react-aria-components/I18nProvider';
@@ -12,7 +15,12 @@ import * as Theme from './-_theme';
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { title: 'Cortex' }],
-    links: [{ rel: 'stylesheet', href: css }],
+    links: [
+      { rel: 'preload', as: 'font', type: 'font/woff2', href: geist, crossOrigin: 'anonymous' },
+      { rel: 'preload', as: 'font', type: 'font/woff2', href: geistMono, crossOrigin: 'anonymous' },
+      { rel: 'preload', as: 'font', type: 'font/woff2', href: fraunces, crossOrigin: 'anonymous' },
+      { rel: 'stylesheet', href: css },
+    ],
   }),
   shellComponent: Shell,
   notFoundComponent: NotFound,
