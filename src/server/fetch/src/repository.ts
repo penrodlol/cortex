@@ -17,7 +17,7 @@ export const REPOSITORY_CACHE_TIME = 5 * 60 * 1000;
 export const GET_REPOSITORY_PAGE_SIZE = 20;
 export const GET_REPOSITORY_DEFAULT_REQUEST: GetRepositoryRequest = { page: 1 };
 
-export const getRepositoryRequestSchema = z.object({
+const getRepositoryRequestSchema = z.object({
   page: z.number().positive().optional().default(1),
   languageIds: z.array(z.string()).optional(),
   publisherIds: z.array(z.string()).optional(),

@@ -24,13 +24,13 @@ export const GET_FEED_PAGE_SIZE = 20;
 export const GET_FEED_DEFAULT_REQUEST: GetFeedRequest = { page: 1 };
 export const GET_FEED_BY_QUERY_MAX_LENGTH = 100;
 
-export const getFeedRequestSchema = z.object({
+const getFeedRequestSchema = z.object({
   page: z.number().positive().optional().default(1),
   types: z.array(z.enum(['Article', 'YouTube Video'] satisfies Array<FeedItemType>)).optional(),
   publisherIds: z.array(z.string()).optional(),
 });
 
-export const getFeedByQueryRequestSchema = z.object({
+const getFeedByQueryRequestSchema = z.object({
   query: z
     .string()
     .trim()

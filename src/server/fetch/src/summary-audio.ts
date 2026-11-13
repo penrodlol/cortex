@@ -14,7 +14,7 @@ export const GET_SUMMARY_AUDIO_ERROR = 'Error Retrieving Summary Audio';
 export const SUMMARY_AUDIO_CACHE_TIME = 5 * 60 * 1000;
 export const GET_SUMMARY_AUDIO_DEFAULT_REQUEST: GetSummaryAudioRequest = {};
 
-export const getSummaryAudioRequestSchema = z.object({ id: z.uuid().optional() });
+const getSummaryAudioRequestSchema = z.object({ id: z.uuid().optional() });
 
 export const getSummaryAudioQueryOptions = (data: GetSummaryAudioRequest) =>
   queryOptions({
