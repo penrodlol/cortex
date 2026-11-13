@@ -12,7 +12,7 @@ import {
   getRepositoryQueryOptions,
   type GetRepositoryRequest,
 } from '#/server/fetch/src/repository';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useFilter } from 'react-aria-components/Autocomplete';
@@ -22,16 +22,17 @@ export const Route = createFileRoute('/repository')({
   component: RepositoryPage,
   loader: async ({ context }) => {
     const repositoryInitialFilterProps = { ...GET_REPOSITORY_DEFAULT_REQUEST };
-    const [repositoryMetadata, repositories] = await Promise.all([
+    await Promise.all([
       context.queryClient.ensureQueryData(getRepositoryMetadataQueryOptions()),
       context.queryClient.ensureQueryData(getRepositoryQueryOptions(repositoryInitialFilterProps)),
     ]);
-    return { repositoryMetadata, repositoryInitialFilterProps, repositories };
+    return { repositoryInitialFilterProps };
   },
 });
 
 function RepositoryPage() {
-  const { repositoryMetadata, repositoryInitialFilterProps } = Route.useLoaderData();
+  const { repositoryInitialFilterProps } = Route.useLoaderData();
+  const { data: repositoryMetadata } = useSuspenseQuery(getRepositoryMetadataQueryOptions());
   const { queryClient } = Route.useRouteContext();
   const [filterProps, setFilterProps] = useState(repositoryInitialFilterProps);
   const { data: filteredFeed, isLoading, isFetching } = useQuery(getRepositoryQueryOptions(filterProps));

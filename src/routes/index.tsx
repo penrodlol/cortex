@@ -12,7 +12,7 @@ import type { GetFeedRequest } from '#/server/fetch/src/feed';
 import { GET_FEED_DEFAULT_REQUEST, getFeedMetadataQueryOptions, getFeedQueryOptions } from '#/server/fetch/src/feed';
 import { GET_SUMMARY_AUDIO_DEFAULT_REQUEST, getSummaryAudioQueryOptions } from '#/server/fetch/src/summary-audio';
 import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useFilter } from 'react-aria-components/Autocomplete';
@@ -23,20 +23,21 @@ export const Route = createFileRoute('/')({
   loader: async ({ context }) => {
     const summaryAudioInitialProps = { ...GET_SUMMARY_AUDIO_DEFAULT_REQUEST };
     const feedInitialFilterProps = { ...GET_FEED_DEFAULT_REQUEST };
-    const [_, feedMetadata] = await Promise.all([
+    await Promise.all([
       context.queryClient.ensureQueryData(getSummaryAudioQueryOptions(summaryAudioInitialProps)),
       context.queryClient.ensureQueryData(getFeedMetadataQueryOptions()),
       context.queryClient.ensureQueryData(getFeedQueryOptions(feedInitialFilterProps)),
     ]);
-    return { summaryAudioInitialProps, feedMetadata, feedInitialFilterProps };
+    return { summaryAudioInitialProps, feedInitialFilterProps };
   },
 });
 
 function HomePage() {
-  const { summaryAudioInitialProps, feedMetadata, feedInitialFilterProps } = Route.useLoaderData();
+  const { summaryAudioInitialProps, feedInitialFilterProps } = Route.useLoaderData();
   const { queryClient } = Route.useRouteContext();
   const [summaryAudioProps, setSummaryAudioProps] = useState(summaryAudioInitialProps);
   const [feedFilterProps, setFeedFilterProps] = useState(feedInitialFilterProps);
+  const { data: feedMetadata } = useSuspenseQuery(getFeedMetadataQueryOptions());
   const summaryAudio = useQuery(getSummaryAudioQueryOptions(summaryAudioProps));
   const feed = useQuery(getFeedQueryOptions(feedFilterProps));
   const { contains: feedPublisherContains } = useFilter({ sensitivity: 'base' });
