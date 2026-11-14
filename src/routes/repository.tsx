@@ -97,18 +97,20 @@ function RepositoryPage() {
             className="flex [&_a]:relative [&_a]:z-20"
           >
             <Collapsible.Trigger overlay aria-label={`Toggle ${entry.title}`} className="hover:bg-transparent" />
-            <Card.Root className="border-gray-6 w-full px-8 py-12 not-lg:border-b lg:px-12 lg:group-first/collapsible:border-r">
-              <Card.Header>
+            <Card.Root className="border-gray-6 w-full min-w-0 px-8 py-12 not-lg:border-b lg:px-12 lg:group-first/collapsible:border-r">
+              <Card.Header className="whitespace-nowrap">
                 <Text font="serif" variant="gray-soft" size="2">
                   {entry.languageName}
                 </Text>
                 <Text variant="gray-soft" size="2">
                   //
                 </Text>
-                <DateTime value={entry.updatedAt} font="serif" variant="gray-soft" size="2" />
-                <Link font="serif" variant="gray-soft" size="1" href={entry.sourceUrl} className="ml-auto flex items-center gap-2">
+                <DateTime value={entry.updatedAt} font="serif" variant="gray-soft" size="2" className="mr-6" />
+                <Link font="serif" variant="gray-soft" size="1" href={entry.sourceUrl} className="ml-auto flex min-w-0 items-center gap-2">
                   <Avatar size="1" src={entry.sourceLogoUrl} alt={entry.sourceName.slice(0, 1)} />
-                  {entry.sourceName}
+                  <Text as="span" size="inherit" className="truncate">
+                    {entry.sourceName}
+                  </Text>
                 </Link>
               </Card.Header>
               <Card.Content>

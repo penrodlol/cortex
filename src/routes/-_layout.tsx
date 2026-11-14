@@ -66,13 +66,13 @@ export function Section<T>({ headers, content, footer, className, ...props }: La
       <Surface as="section" className={cn('flex flex-1 flex-col', className)} {...props}>
         {headers.map((header, index) => (
           <Row key={index} border="bottom">
-            <Content className="grid lg:grid-cols-2">{header()}</Content>
+            <Content className="grid grid-cols-1 lg:grid-cols-2">{header()}</Content>
           </Row>
         ))}
         <Surface>
           {chunkedEntries.map((chunk) => (
             <Row key={content.keyIdentifier(chunk[0])}>
-              <Content className="grid lg:grid-cols-2">
+              <Content className="grid grid-cols-1 lg:grid-cols-2">
                 {chunk.map((entry) => (
                   <SectionEntry key={content.keyIdentifier(entry)} entry={entry} render={content.render} />
                 ))}
