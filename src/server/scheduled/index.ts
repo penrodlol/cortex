@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { logError } from '../utils/logger';
 import dailyArticleScheduled from './src/daily-article.scheduled';
-import dailyGithubScheduled from './src/daily-github.scheduled';
 import dailySummaryAudioScheduled from './src/daily-summary-audio.scheduled';
 import dailyYoutubeScheduled from './src/daily-youtube.scheduled';
 
@@ -24,11 +23,7 @@ const handler: ExportedHandler<Env>['scheduled'] = async (event, env) => {
 
     switch (event.cron) {
       case '0 5 * * *': {
-        const handlers = await Promise.allSettled([
-          dailyArticleScheduled(env, daysAgo.data),
-          dailyYoutubeScheduled(env, daysAgo.data),
-          dailyGithubScheduled(env),
-        ]);
+        const handlers = await Promise.allSettled([dailyArticleScheduled(env, daysAgo.data), dailyYoutubeScheduled(env, daysAgo.data)]);
         for (const handler of handlers)
           if (handler.status === 'rejected') logError(SCHEDULED_HANDLER_ERROR, { error: handler.reason, event });
         break;
