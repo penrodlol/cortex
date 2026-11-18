@@ -14,8 +14,16 @@ import * as Theme from './-_theme';
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
-    meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { title: 'Cortex' }],
+    meta: [
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'Cortex' },
+      { name: 'description', content: 'A Developer Artifact Registry' },
+      { name: 'theme-color', media: '(prefers-color-scheme: light)', content: '#eeeeee' },
+      { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#0a0a0a' },
+    ],
     links: [
+      { rel: 'manifest', href: '/manifest.json' },
       { rel: 'preload', as: 'font', type: 'font/woff2', href: geist, crossOrigin: 'anonymous' },
       { rel: 'preload', as: 'font', type: 'font/woff2', href: geistMono, crossOrigin: 'anonymous' },
       { rel: 'preload', as: 'font', type: 'font/woff2', href: fraunces, crossOrigin: 'anonymous' },
